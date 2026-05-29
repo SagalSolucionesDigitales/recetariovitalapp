@@ -81,8 +81,8 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
       { role: "user", content: user },
     ], { json: true });
 
-    let plan: unknown;
-    try { plan = JSON.parse(content); } catch { throw new Error("La IA no devolvió JSON válido."); }
+    let plan: Record<string, unknown>;
+    try { plan = JSON.parse(content) as Record<string, unknown>; } catch { throw new Error("La IA no devolvió JSON válido."); }
 
     const today = new Date();
     const monday = new Date(today);
