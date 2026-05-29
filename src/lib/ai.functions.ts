@@ -95,7 +95,7 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
       plan_json: plan as never,
     });
     if (error) throw new Error(error.message);
-    return { plan, semana_inicio };
+    return { semana_inicio };
   });
 
 export const getLatestPlan = createServerFn({ method: "GET" })
