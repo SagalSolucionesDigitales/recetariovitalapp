@@ -14,7 +14,156 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      check_ins: {
+        Row: {
+          bienestar_score: number | null
+          creado_en: string
+          fecha: string
+          id: string
+          notas: string | null
+          siguio_plan: string | null
+          user_id: string
+        }
+        Insert: {
+          bienestar_score?: number | null
+          creado_en?: string
+          fecha: string
+          id?: string
+          notas?: string | null
+          siguio_plan?: string | null
+          user_id: string
+        }
+        Update: {
+          bienestar_score?: number | null
+          creado_en?: string
+          fecha?: string
+          id?: string
+          notas?: string | null
+          siguio_plan?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          fecha: string
+          id: string
+          mensaje: string
+          respuesta: string
+          user_id: string
+        }
+        Insert: {
+          fecha?: string
+          id?: string
+          mensaje: string
+          respuesta: string
+          user_id: string
+        }
+        Update: {
+          fecha?: string
+          id?: string
+          mensaje?: string
+          respuesta?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          actualizado_en: string
+          creado_en: string
+          glucosa_referencia: string | null
+          id: string
+          nombre: string | null
+          onboarding_completo: boolean
+          personas: string | null
+          presupuesto: string | null
+          restricciones: string[] | null
+          tiempo_cocina: string | null
+        }
+        Insert: {
+          actualizado_en?: string
+          creado_en?: string
+          glucosa_referencia?: string | null
+          id: string
+          nombre?: string | null
+          onboarding_completo?: boolean
+          personas?: string | null
+          presupuesto?: string | null
+          restricciones?: string[] | null
+          tiempo_cocina?: string | null
+        }
+        Update: {
+          actualizado_en?: string
+          creado_en?: string
+          glucosa_referencia?: string | null
+          id?: string
+          nombre?: string | null
+          onboarding_completo?: boolean
+          personas?: string | null
+          presupuesto?: string | null
+          restricciones?: string[] | null
+          tiempo_cocina?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          creado_en: string
+          current_period_end: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          user_id: string
+        }
+        Insert: {
+          creado_en?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          user_id: string
+        }
+        Update: {
+          creado_en?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_plans: {
+        Row: {
+          generado_en: string
+          id: string
+          plan_json: Json
+          semana_inicio: string
+          user_id: string
+        }
+        Insert: {
+          generado_en?: string
+          id?: string
+          plan_json: Json
+          semana_inicio: string
+          user_id: string
+        }
+        Update: {
+          generado_en?: string
+          id?: string
+          plan_json?: Json
+          semana_inicio?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
