@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Coffee, Sun, Moon, ChevronDown, RefreshCw, Loader2 } from "lucide-react";
+import { Coffee, Sun, Moon, ChevronDown, RefreshCw, Loader2, ShoppingBasket } from "lucide-react";
 import { getLatestPlan, generateWeeklyPlan } from "@/lib/ai.functions";
 import { toast } from "sonner";
 
@@ -72,6 +72,18 @@ function PlanPage() {
       </header>
 
       <main className="space-y-3 px-5 py-5">
+        {plan && (
+          <Link to="/compras" className="flex items-center gap-3 rounded-2xl bg-accent-soft p-4 text-accent">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent text-accent-foreground">
+              <ShoppingBasket className="h-4 w-4" />
+            </span>
+            <div className="flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider">Lista de compras</p>
+              <p className="text-sm font-medium">Ingredientes consolidados de la semana</p>
+            </div>
+            <ChevronDown className="h-4 w-4 -rotate-90" />
+          </Link>
+        )}
         {isLoading && <p className="text-sm text-muted-foreground">Cargando…</p>}
 
         {!isLoading && !plan && (

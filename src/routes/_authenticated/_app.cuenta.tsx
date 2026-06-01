@@ -117,8 +117,12 @@ function CuentaPage() {
 
         <section>
           <div className="space-y-1 rounded-2xl border border-border bg-card p-2">
-            <Row icon={CreditCard} label="Suscripción" sub="Período de prueba — 7 días gratis" />
-            <Row icon={Settings} label="Ajustes" sub="Notificaciones, idioma" />
+            <Link to="/suscripcion" className="block">
+              <Row icon={CreditCard} label="Suscripción" sub="Período de prueba — 7 días gratis" />
+            </Link>
+            <Link to="/ajustes" className="block">
+              <Row icon={Settings} label="Ajustes" sub="Notificaciones, idioma, privacidad" />
+            </Link>
             <Row icon={User} label="Términos y privacidad" sub="Recetario Vital v1.0" />
           </div>
         </section>
