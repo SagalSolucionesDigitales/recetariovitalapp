@@ -110,8 +110,20 @@ function ProgresoPage() {
   return (
     <>
       <header className="bg-primary px-5 pb-5 pt-5 text-primary-foreground">
-        <h1 className="font-serif text-2xl">Mi progreso</h1>
-        <p className="mt-1 text-xs text-white/65">{(checkins?.length ?? 0)} días con Recetario Vital</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-serif text-2xl">Mi progreso</h1>
+            <p className="mt-1 text-xs text-white/65">{(checkins?.length ?? 0)} días con Recetario Vital</p>
+          </div>
+          <button
+            onClick={exportPdf}
+            disabled={exporting || !checkins?.length}
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-medium disabled:opacity-50"
+          >
+            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            PDF
+          </button>
+        </div>
       </header>
 
       <main className="space-y-4 px-5 py-5">
