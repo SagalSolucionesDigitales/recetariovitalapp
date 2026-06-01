@@ -57,7 +57,7 @@ function AjustesPage() {
         </Group>
 
         <Group title="Privacidad" icon={Shield}>
-          <Link to="/cuenta/suscripcion" className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-muted">
+          <Link to="/suscripcion" className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-muted">
             Administrar suscripción
           </Link>
           <a href="mailto:hola@recetariovital.app?subject=Eliminar%20mi%20cuenta" className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive hover:bg-muted">

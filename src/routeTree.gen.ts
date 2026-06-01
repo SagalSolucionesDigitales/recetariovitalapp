@@ -15,11 +15,14 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
 import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app.dashboard'
 import { Route as AuthenticatedAppCuentaRouteImport } from './routes/_authenticated/_app.cuenta'
+import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/_app.compras'
 import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/_app.coach'
+import { Route as AuthenticatedAppAjustesRouteImport } from './routes/_authenticated/_app.ajustes'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -49,6 +52,12 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAppSuscripcionRoute =
+  AuthenticatedAppSuscripcionRouteImport.update({
+    id: '/suscripcion',
+    path: '/suscripcion',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProgresoRoute =
   AuthenticatedAppProgresoRouteImport.update({
     id: '/progreso',
@@ -71,9 +80,19 @@ const AuthenticatedAppCuentaRoute = AuthenticatedAppCuentaRouteImport.update({
   path: '/cuenta',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppComprasRoute = AuthenticatedAppComprasRouteImport.update({
+  id: '/compras',
+  path: '/compras',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
   id: '/coach',
   path: '/coach',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppAjustesRoute = AuthenticatedAppAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 
@@ -82,22 +101,28 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/coach': typeof AuthenticatedAppCoachRoute
+  '/compras': typeof AuthenticatedAppComprasRoute
   '/cuenta': typeof AuthenticatedAppCuentaRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
+  '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/coach': typeof AuthenticatedAppCoachRoute
+  '/compras': typeof AuthenticatedAppComprasRoute
   '/cuenta': typeof AuthenticatedAppCuentaRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
+  '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,11 +132,14 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/_app/ajustes': typeof AuthenticatedAppAjustesRoute
   '/_authenticated/_app/coach': typeof AuthenticatedAppCoachRoute
+  '/_authenticated/_app/compras': typeof AuthenticatedAppComprasRoute
   '/_authenticated/_app/cuenta': typeof AuthenticatedAppCuentaRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/_app/progreso': typeof AuthenticatedAppProgresoRoute
+  '/_authenticated/_app/suscripcion': typeof AuthenticatedAppSuscripcionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,22 +148,28 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/onboarding'
+    | '/ajustes'
     | '/coach'
+    | '/compras'
     | '/cuenta'
     | '/dashboard'
     | '/plan'
     | '/progreso'
+    | '/suscripcion'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/signup'
     | '/onboarding'
+    | '/ajustes'
     | '/coach'
+    | '/compras'
     | '/cuenta'
     | '/dashboard'
     | '/plan'
     | '/progreso'
+    | '/suscripcion'
   id:
     | '__root__'
     | '/'
@@ -144,11 +178,14 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
+    | '/_authenticated/_app/ajustes'
     | '/_authenticated/_app/coach'
+    | '/_authenticated/_app/compras'
     | '/_authenticated/_app/cuenta'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/plan'
     | '/_authenticated/_app/progreso'
+    | '/_authenticated/_app/suscripcion'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -202,6 +239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/_app/suscripcion': {
+      id: '/_authenticated/_app/suscripcion'
+      path: '/suscripcion'
+      fullPath: '/suscripcion'
+      preLoaderRoute: typeof AuthenticatedAppSuscripcionRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/progreso': {
       id: '/_authenticated/_app/progreso'
       path: '/progreso'
@@ -230,6 +274,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCuentaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/compras': {
+      id: '/_authenticated/_app/compras'
+      path: '/compras'
+      fullPath: '/compras'
+      preLoaderRoute: typeof AuthenticatedAppComprasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/coach': {
       id: '/_authenticated/_app/coach'
       path: '/coach'
@@ -237,23 +288,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/ajustes': {
+      id: '/_authenticated/_app/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAppAjustesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAjustesRoute: typeof AuthenticatedAppAjustesRoute
   AuthenticatedAppCoachRoute: typeof AuthenticatedAppCoachRoute
+  AuthenticatedAppComprasRoute: typeof AuthenticatedAppComprasRoute
   AuthenticatedAppCuentaRoute: typeof AuthenticatedAppCuentaRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
   AuthenticatedAppProgresoRoute: typeof AuthenticatedAppProgresoRoute
+  AuthenticatedAppSuscripcionRoute: typeof AuthenticatedAppSuscripcionRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAjustesRoute: AuthenticatedAppAjustesRoute,
   AuthenticatedAppCoachRoute: AuthenticatedAppCoachRoute,
+  AuthenticatedAppComprasRoute: AuthenticatedAppComprasRoute,
   AuthenticatedAppCuentaRoute: AuthenticatedAppCuentaRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
   AuthenticatedAppProgresoRoute: AuthenticatedAppProgresoRoute,
+  AuthenticatedAppSuscripcionRoute: AuthenticatedAppSuscripcionRoute,
 }
 
 const AuthenticatedAppRouteWithChildren =
@@ -282,13 +346,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
