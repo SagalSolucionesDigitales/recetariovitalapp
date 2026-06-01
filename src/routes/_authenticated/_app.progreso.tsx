@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, Download } from "lucide-react";
 import { getRecentCheckins, saveCheckin } from "@/lib/checkin.functions";
+import { getMyProfile } from "@/lib/profile.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/_app/progreso")({
@@ -17,8 +18,11 @@ const dayLabels = ["L", "M", "X", "J", "V", "S", "D"];
 function ProgresoPage() {
   const qc = useQueryClient();
   const fetch = useServerFn(getRecentCheckins);
+  const fetchProfile = useServerFn(getMyProfile);
   const save = useServerFn(saveCheckin);
   const { data: checkins } = useQuery({ queryKey: ["checkins"], queryFn: () => fetch() });
+  const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
+  const [exporting, setExporting] = useState(false);
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayCheckin = (checkins ?? []).find(c => c.fecha === todayStr);
@@ -32,6 +36,63 @@ function ProgresoPage() {
     onSuccess: () => { toast.success("¡Check-in guardado!"); qc.invalidateQueries({ queryKey: ["checkins"] }); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
+
+  async function exportPdf() {
+    if (!checkins?.length) { toast.info("Aún no hay registros para exportar."); return; }
+    setExporting(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const left = 56;
+      let y = 64;
+      doc.setFont("helvetica", "bold"); doc.setFontSize(20);
+      doc.text("Recetario Vital", left, y);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(110);
+      y += 16; doc.text("Historial médico — bienestar y adherencia al plan", left, y);
+      y += 22; doc.setTextColor(0); doc.setFontSize(11);
+      doc.text(`Nombre: ${profile?.nombre ?? "—"}`, left, y);
+      y += 14; doc.text(`Glucosa de referencia: ${profile?.glucosa_referencia ?? "—"}`, left, y);
+      y += 14; doc.text(`Fecha de exportación: ${new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}`, left, y);
+
+      y += 22; doc.setDrawColor(200); doc.line(left, y, 556, y);
+      y += 22; doc.setFont("helvetica", "bold"); doc.setFontSize(11);
+      doc.text("Fecha", left, y); doc.text("Bienestar", left + 160, y); doc.text("Adherencia", left + 250, y); doc.text("Notas", left + 360, y);
+      y += 6; doc.setDrawColor(220); doc.line(left, y, 556, y);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+
+      const sorted = [...checkins].sort((a, b) => a.fecha.localeCompare(b.fecha));
+      const adh: Record<string, string> = { si: "Sí siguió", parcial: "Parcial", no: "No siguió" };
+      for (const c of sorted) {
+        y += 18;
+        if (y > 740) { doc.addPage(); y = 72; }
+        doc.text(new Date(c.fecha).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "2-digit" }), left, y);
+        doc.text(`${c.bienestar_score ?? "—"} / 5`, left + 160, y);
+        doc.text(adh[c.siguio_plan ?? ""] ?? "—", left + 250, y);
+        const notes = (c.notas ?? "").slice(0, 60);
+        doc.text(notes, left + 360, y);
+      }
+
+      const total = sorted.length;
+      const avg = total ? (sorted.reduce((a, b) => a + (b.bienestar_score ?? 0), 0) / total).toFixed(2) : "—";
+      const adhPct = total ? Math.round(100 * sorted.filter(c => c.siguio_plan === "si").length / total) : 0;
+      y += 32;
+      if (y > 720) { doc.addPage(); y = 72; }
+      doc.setFont("helvetica", "bold"); doc.text("Resumen", left, y);
+      y += 14; doc.setFont("helvetica", "normal");
+      doc.text(`Registros totales: ${total}`, left, y);
+      y += 14; doc.text(`Bienestar promedio: ${avg} / 5`, left, y);
+      y += 14; doc.text(`Adherencia completa al plan: ${adhPct}%`, left, y);
+
+      doc.setFontSize(8); doc.setTextColor(140);
+      doc.text("Este reporte no reemplaza la consulta médica profesional.", left, 770);
+      doc.save(`historial-recetario-vital-${new Date().toISOString().slice(0,10)}.pdf`);
+      toast.success("Historial descargado");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No pudimos generar el PDF");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const canSave = score !== null && siguio !== null && !mut.isPending;
 
