@@ -44,13 +44,28 @@ function SignupPage() {
     e.preventDefault();
     if (!valid) return;
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password: pw,
       options: { emailRedirectTo: window.location.origin + "/dashboard" },
     });
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+    if (!signUpData.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password: pw,
+      });
+      if (signInError) {
+        setLoading(false);
+        toast.error("Cuenta creada. Revisa tu correo para activarla.");
+        return;
+      }
+    }
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
     setSuccess(true);
   }
 
