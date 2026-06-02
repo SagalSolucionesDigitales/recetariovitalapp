@@ -51,7 +51,7 @@ function Dashboard() {
             {initials}
           </Link>
         </div>
-        <h1 className="mt-5 font-serif text-2xl">{greet()}, {profile?.nombre ?? "👋"}</h1>
+        <h1 className="mt-5 font-serif text-2xl" suppressHydrationWarning>{useGreeting()}, {profile?.nombre ?? "👋"}</h1>
         <p className="mt-1 text-xs text-white/65">
           {dayName} · Semana en curso{racha > 0 ? ` · ${racha} días seguidos ✓` : ""}
         </p>
