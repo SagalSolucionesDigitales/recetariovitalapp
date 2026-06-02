@@ -15,6 +15,20 @@ function SuscripcionPage() {
   const fetch = useServerFn(getMySubscription);
   const { data: sub } = useQuery({ queryKey: ["subscription"], queryFn: () => fetch() });
 
+  const checkoutFn = useServerFn(createCheckoutSession);
+  const portalFn = useServerFn(createPortalSession);
+
+  const checkout = useMutation({
+    mutationFn: () => checkoutFn(),
+    onSuccess: (res) => { if (res?.url) window.location.href = res.url; else toast.error("No se pudo iniciar el pago"); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al iniciar el pago"),
+  });
+  const portal = useMutation({
+    mutationFn: () => portalFn(),
+    onSuccess: (res) => { if (res?.url) window.location.href = res.url; },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al abrir el portal"),
+  });
+
   const trialEnd = sub?.trial_end ? new Date(sub.trial_end) : null;
   const now = new Date();
   const daysLeft = trialEnd ? Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / 86400000)) : 0;
