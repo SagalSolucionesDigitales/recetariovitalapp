@@ -14,11 +14,17 @@ export const Route = createFileRoute("/_authenticated/_app/dashboard")({
 
 const dayLabels = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-function greet() {
+function computeGreeting() {
   const h = new Date().getHours();
   if (h < 12) return "Buenos días";
   if (h < 19) return "Buenas tardes";
   return "Buenas noches";
+}
+
+function useGreeting() {
+  const [g, setG] = useState("Hola");
+  useEffect(() => { setG(computeGreeting()); }, []);
+  return g;
 }
 
 function Dashboard() {
