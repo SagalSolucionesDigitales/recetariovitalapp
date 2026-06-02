@@ -26,15 +26,21 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         async function upsertFromSubscription(sub: import("stripe").Stripe.Subscription) {
+          const subAny = sub as unknown as Record<string, unknown>;
+          const customerObj = sub.customer as unknown as { id?: string; metadata?: Record<string, string> } | string;
+          const customerId = typeof customerObj === "string" ? customerObj : customerObj.id ?? "";
+          const customerMeta = typeof customerObj === "string" ? undefined : customerObj.metadata;
           const userId =
             (sub.metadata?.user_id as string | undefined) ||
-            ((typeof sub.customer === "string" ? null : (sub.customer.metadata?.user_id as string | undefined)) ?? null);
+            (customerMeta?.user_id as string | undefined) ||
+            null;
           if (!userId) {
             console.warn("[stripe-webhook] subscription without user_id metadata", sub.id);
             return;
           }
-          const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-          const periodEnd = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null;
+          const cpe = (subAny.current_period_end as number | undefined)
+            ?? (sub.items?.data?.[0] as unknown as { current_period_end?: number } | undefined)?.current_period_end;
+          const periodEnd = cpe ? new Date(cpe * 1000).toISOString() : null;
           const trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null;
 
           // Try update existing row by stripe_subscription_id
