@@ -102,8 +102,9 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               break;
             }
             case "invoice.payment_failed": {
-              const invoice = event.data.object as import("stripe").Stripe.Invoice;
-              const subId = typeof invoice.subscription === "string" ? invoice.subscription : invoice.subscription?.id;
+              const invoice = event.data.object as unknown as { subscription?: string | { id: string }; parent?: { subscription_details?: { subscription?: string | { id: string } } } };
+              const rawSub = invoice.subscription ?? invoice.parent?.subscription_details?.subscription;
+              const subId = typeof rawSub === "string" ? rawSub : rawSub?.id;
               if (subId) {
                 const sub = await stripe.subscriptions.retrieve(subId);
                 await upsertFromSubscription(sub);
