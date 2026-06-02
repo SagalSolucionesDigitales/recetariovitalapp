@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
 import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
@@ -51,6 +52,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppSuscripcionRoute =
   AuthenticatedAppSuscripcionRouteImport.update({
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/_app/progreso': typeof AuthenticatedAppProgresoRoute
   '/_authenticated/_app/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progreso'
     | '/suscripcion'
+    | '/api/public/stripe-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progreso'
     | '/suscripcion'
+    | '/api/public/stripe-webhook'
   id:
     | '__root__'
     | '/'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/plan'
     | '/_authenticated/_app/progreso'
     | '/_authenticated/_app/suscripcion'
+    | '/api/public/stripe-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app/suscripcion': {
       id: '/_authenticated/_app/suscripcion'
@@ -342,17 +362,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

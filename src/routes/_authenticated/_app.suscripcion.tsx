@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Check, CreditCard, Sparkles } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { ArrowLeft, Check, CreditCard, Loader2, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { getMySubscription } from "@/lib/subscription.functions";
+import { createCheckoutSession, createPortalSession } from "@/lib/stripe.functions";
 
 export const Route = createFileRoute("/_authenticated/_app/suscripcion")({
   head: () => ({ meta: [{ title: "Suscripción — Recetario Vital" }] }),
@@ -12,6 +14,20 @@ export const Route = createFileRoute("/_authenticated/_app/suscripcion")({
 function SuscripcionPage() {
   const fetch = useServerFn(getMySubscription);
   const { data: sub } = useQuery({ queryKey: ["subscription"], queryFn: () => fetch() });
+
+  const checkoutFn = useServerFn(createCheckoutSession);
+  const portalFn = useServerFn(createPortalSession);
+
+  const checkout = useMutation({
+    mutationFn: () => checkoutFn(),
+    onSuccess: (res) => { if (res?.url) window.location.href = res.url; else toast.error("No se pudo iniciar el pago"); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al iniciar el pago"),
+  });
+  const portal = useMutation({
+    mutationFn: () => portalFn(),
+    onSuccess: (res) => { if (res?.url) window.location.href = res.url; },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al abrir el portal"),
+  });
 
   const trialEnd = sub?.trial_end ? new Date(sub.trial_end) : null;
   const now = new Date();
@@ -60,9 +76,9 @@ function SuscripcionPage() {
         <section className="rounded-2xl border border-border bg-card p-5">
           <div className="flex items-baseline justify-between">
             <h2 className="font-serif text-xl">Plan Mensual</h2>
-            <p className="font-serif text-2xl text-primary">$99 <span className="text-xs font-sans text-muted-foreground">MXN/mes</span></p>
+            <p className="font-serif text-2xl text-primary">$9.99 <span className="text-xs font-sans text-muted-foreground">USD/mes</span></p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Cancela cuando quieras, sin compromiso.</p>
+          <p className="mt-1 text-xs text-muted-foreground">7 días gratis. Después $9.99 USD al mes. Cancela cuando quieras.</p>
 
           <ul className="mt-4 space-y-2.5 text-sm">
             {[
@@ -81,15 +97,27 @@ function SuscripcionPage() {
             ))}
           </ul>
 
-          <button
-            disabled
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3.5 text-sm font-medium text-accent-foreground disabled:opacity-70"
-          >
-            <CreditCard className="h-4 w-4" />
-            {status === "active" ? "Administrar pago" : "Activar suscripción"}
-          </button>
+          {status === "active" || status === "past_due" || status === "canceled" ? (
+            <button
+              onClick={() => portal.mutate()}
+              disabled={portal.isPending}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3.5 text-sm font-medium text-accent-foreground disabled:opacity-60"
+            >
+              {portal.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+              Administrar suscripción
+            </button>
+          ) : (
+            <button
+              onClick={() => checkout.mutate()}
+              disabled={checkout.isPending}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3.5 text-sm font-medium text-accent-foreground disabled:opacity-60"
+            >
+              {checkout.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+              Activar suscripción
+            </button>
+          )}
           <p className="mt-2 text-center text-[11px] text-muted-foreground">
-            Conectaremos tu método de pago al activar Stripe.
+            Pagos seguros procesados por Stripe.
           </p>
         </section>
 
