@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { Flame, SmilePlus, Coffee, Sun, Moon, ArrowRight, Plus, Check, MessageCircle } from "lucide-react";
 import { getMyProfile } from "@/lib/profile.functions";
 import { getRecentCheckins } from "@/lib/checkin.functions";
