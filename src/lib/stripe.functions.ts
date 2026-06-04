@@ -7,11 +7,12 @@ const TRIAL_DAYS = 7;
 
 function assertStripeConfig() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  const priceId = STRIPE_PRICE_ID;
+  const priceId = process.env.STRIPE_PRICE_ID || STRIPE_PRICE_ID;
   const diagnostics = {
     hasSecretKey: Boolean(secretKey),
     hasPriceId: Boolean(priceId),
     priceId,
+    priceIdSource: process.env.STRIPE_PRICE_ID ? "env" : "code",
   };
   if (!secretKey || !priceId) {
     console.error("[stripe.checkout] Missing Stripe configuration", diagnostics);
