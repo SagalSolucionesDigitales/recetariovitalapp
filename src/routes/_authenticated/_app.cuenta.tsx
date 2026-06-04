@@ -159,6 +159,41 @@ function Select({ label, value, onChange, options }: { label: string; value: str
   );
 }
 
+function MultiCheck({ label, value, onChange }: { label: string; value: string[]; onChange: (v: string[]) => void }) {
+  const options = [
+    ["gluten", "🌾 Gluten"],
+    ["lacteos", "🥛 Lácteos"],
+    ["mariscos", "🦐 Mariscos"],
+    ["cerdo", "🥩 Cerdo"],
+    ["picante", "🌶️ Picante"],
+    ["ninguno", "✅ Ninguno"],
+  ] as const;
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="grid grid-cols-2 gap-2">
+        {options.map(([id, text]) => {
+          const selected = value.includes(id);
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => {
+                if (id === "ninguno") onChange(selected ? [] : ["ninguno"]);
+                else onChange(selected ? value.filter(x => x !== id) : [...value.filter(x => x !== "ninguno"), id]);
+              }}
+              className={`flex min-h-11 items-center justify-between rounded-lg border px-3 py-2 text-left text-sm ${selected ? "border-primary bg-primary-soft" : "border-border bg-background"}`}
+            >
+              <span>{text}</span>
+              {selected && <Check className="h-4 w-4 text-primary" strokeWidth={3} />}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function Row({ icon: Icon, label, sub }: { icon: typeof User; label: string; sub: string }) {
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted">
