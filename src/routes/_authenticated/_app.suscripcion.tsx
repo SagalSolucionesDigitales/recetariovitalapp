@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useRef } from "react";
 import { ArrowLeft, Check, CreditCard, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { getMySubscription } from "@/lib/subscription.functions";
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/_authenticated/_app/suscripcion")({
 });
 
 function SuscripcionPage() {
+  const checkoutWindowRef = useRef<Window | null>(null);
   const fetch = useServerFn(getMySubscription);
   const { data: sub } = useQuery({ queryKey: ["subscription"], queryFn: () => fetch() });
 
@@ -32,8 +34,24 @@ function SuscripcionPage() {
         if (timeoutId) clearTimeout(timeoutId);
       }
     },
-    onSuccess: (res) => { if (res?.url) window.location.href = res.url; else toast.error("No se pudo iniciar el pago"); },
+    onSuccess: (res) => {
+      const checkoutWindow = checkoutWindowRef.current;
+      checkoutWindowRef.current = null;
+      if (!res?.url) {
+        checkoutWindow?.close();
+        toast.error("No se pudo iniciar el pago");
+        return;
+      }
+      if (checkoutWindow && !checkoutWindow.closed) {
+        checkoutWindow.location.href = res.url;
+        return;
+      }
+      const opened = window.open(res.url, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.assign(res.url);
+    },
     onError: (e) => {
+      checkoutWindowRef.current?.close();
+      checkoutWindowRef.current = null;
       console.error("[stripe.checkout] Error exacto al activar suscripción", e);
       toast.error(e instanceof Error ? e.message : "Error al iniciar el pago");
     },
@@ -123,7 +141,10 @@ function SuscripcionPage() {
             </button>
           ) : (
             <button
-              onClick={() => checkout.mutate()}
+              onClick={() => {
+                checkoutWindowRef.current = window.open("", "_blank");
+                checkout.mutate();
+              }}
               disabled={checkout.isPending}
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3.5 text-sm font-medium text-accent-foreground disabled:opacity-60"
             >
