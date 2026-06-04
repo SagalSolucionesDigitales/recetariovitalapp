@@ -47,7 +47,10 @@ function SignupPage() {
     const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password: pw,
-      options: { emailRedirectTo: window.location.origin + "/dashboard" },
+      options: {
+        emailRedirectTo: window.location.origin + "/onboarding",
+        data: { email_confirm: false },
+      },
     });
     if (error) {
       setLoading(false);
@@ -61,7 +64,8 @@ function SignupPage() {
       });
       if (signInError) {
         setLoading(false);
-        toast.error("Cuenta creada. Revisa tu correo para activarla.");
+        console.error("[signup] No se pudo iniciar sesión automáticamente después del registro", signInError);
+        toast.error(`Cuenta creada, pero no pudimos iniciar sesión automáticamente: ${signInError.message}`);
         return;
       }
     }
