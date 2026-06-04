@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2, Check } from "lucide-react";
 import { getMyProfile, updateProfileBasics } from "@/lib/profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ function CuentaPage() {
 
   const [nombre, setNombre] = useState("");
   const [glu, setGlu] = useState<string>("");
+  const [rest, setRest] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<string>("");
   const [personas, setPersonas] = useState<string>("");
   const [presup, setPresup] = useState<string>("");
@@ -29,6 +30,7 @@ function CuentaPage() {
     if (profile) {
       setNombre(profile.nombre ?? "");
       setGlu(profile.glucosa_referencia ?? "");
+      setRest(profile.restricciones ?? []);
       setTiempo(profile.tiempo_cocina ?? "");
       setPersonas(profile.personas ?? "");
       setPresup(profile.presupuesto ?? "");
@@ -39,6 +41,7 @@ function CuentaPage() {
     mutationFn: () => update({ data: {
       nombre: nombre || undefined,
       glucosa_referencia: (glu || undefined) as never,
+      restricciones: rest,
       tiempo_cocina: (tiempo || undefined) as never,
       personas: (personas || undefined) as never,
       presupuesto: (presup || undefined) as never,
@@ -89,6 +92,7 @@ function CuentaPage() {
               ["111-125", "111–125 mg/dL"],
               ["no-se", "No lo sé exactamente"],
             ]} />
+            <MultiCheck label="Restricciones alimentarias" value={rest} onChange={setRest} />
             <Select label="Tiempo de cocina" value={tiempo} onChange={setTiempo} options={[
               ["menos15", "Menos de 15 min"],
               ["15-30", "15–30 min"],
