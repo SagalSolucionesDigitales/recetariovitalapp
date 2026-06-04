@@ -21,7 +21,10 @@ function SuscripcionPage() {
   const checkout = useMutation({
     mutationFn: () => checkoutFn(),
     onSuccess: (res) => { if (res?.url) window.location.href = res.url; else toast.error("No se pudo iniciar el pago"); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al iniciar el pago"),
+    onError: (e) => {
+      console.error("[stripe.checkout] Error exacto al activar suscripción", e);
+      toast.error(e instanceof Error ? e.message : "Error al iniciar el pago");
+    },
   });
   const portal = useMutation({
     mutationFn: () => portalFn(),
