@@ -19,9 +19,24 @@ function SuscripcionPage() {
   const portalFn = useServerFn(createPortalSession);
 
   const checkout = useMutation({
-    mutationFn: () => checkoutFn(),
+    mutationFn: async () => {
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([
+          checkoutFn(),
+          new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => reject(new Error("Stripe no respondió en 30 segundos. Revisa la consola del servidor para el error exacto.")), 30000);
+          }),
+        ]);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
+    },
     onSuccess: (res) => { if (res?.url) window.location.href = res.url; else toast.error("No se pudo iniciar el pago"); },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Error al iniciar el pago"),
+    onError: (e) => {
+      console.error("[stripe.checkout] Error exacto al activar suscripción", e);
+      toast.error(e instanceof Error ? e.message : "Error al iniciar el pago");
+    },
   });
   const portal = useMutation({
     mutationFn: () => portalFn(),

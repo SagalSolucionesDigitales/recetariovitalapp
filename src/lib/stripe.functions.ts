@@ -5,11 +5,28 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 export const STRIPE_PRICE_ID = "price_1TddthRRnD7pgbHtCokKB4F0";
 const TRIAL_DAYS = 7;
 
+function assertStripeConfig() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  const priceId = process.env.STRIPE_PRICE_ID || STRIPE_PRICE_ID;
+  const diagnostics = {
+    hasSecretKey: Boolean(secretKey),
+    hasPriceId: Boolean(priceId),
+    priceId,
+    priceIdSource: process.env.STRIPE_PRICE_ID ? "env" : "code",
+  };
+  if (!secretKey || !priceId) {
+    console.error("[stripe.checkout] Missing Stripe configuration", diagnostics);
+    throw new Error(
+      `Configuración de Stripe incompleta: STRIPE_SECRET_KEY=${diagnostics.hasSecretKey ? "ok" : "faltante"}, STRIPE_PRICE_ID=${diagnostics.hasPriceId ? "ok" : "faltante"}`,
+    );
+  }
+  return { secretKey, priceId };
+}
+
 async function getStripe() {
   const Stripe = (await import("stripe")).default;
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error("STRIPE_SECRET_KEY is not set");
-  return new Stripe(key, { apiVersion: "2025-08-27.basil" as never });
+  const { secretKey } = assertStripeConfig();
+  return new Stripe(secretKey, { apiVersion: "2025-08-27.basil" as never });
 }
 
 function getOrigin() {
@@ -25,46 +42,61 @@ function getOrigin() {
 export const createCheckoutSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId, claims } = context;
-    const email = (claims as { email?: string } | undefined)?.email;
-    const stripe = await getStripe();
+    try {
+      const { priceId } = assertStripeConfig();
+      const { supabase, userId, claims } = context;
+      const email = (claims as { email?: string } | undefined)?.email;
+      const stripe = await getStripe();
 
-    // Find existing customer
-    let customerId: string | undefined;
-    const { data: existingSub } = await supabase
-      .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .not("stripe_customer_id", "is", null)
-      .order("creado_en", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      // Find existing customer
+      let customerId: string | undefined;
+      const { data: existingSub, error: existingSubError } = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .not("stripe_customer_id", "is", null)
+        .order("creado_en", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existingSubError) throw new Error(existingSubError.message);
 
-    if (existingSub?.stripe_customer_id) {
-      customerId = existingSub.stripe_customer_id;
-    } else if (email) {
-      const found = await stripe.customers.list({ email, limit: 1 });
-      if (found.data.length > 0) customerId = found.data[0].id;
-    }
+      if (existingSub?.stripe_customer_id) {
+        customerId = existingSub.stripe_customer_id;
+      } else if (email) {
+        const found = await stripe.customers.list({ email, limit: 1 });
+        if (found.data.length > 0) customerId = found.data[0].id;
+      }
 
-    const origin = getOrigin();
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer: customerId,
-      customer_email: customerId ? undefined : email,
-      client_reference_id: userId,
-      line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      subscription_data: {
-        trial_period_days: TRIAL_DAYS,
+      const origin = getOrigin();
+      console.info("[stripe.checkout] Creating checkout session", {
+        userId,
+        hasEmail: Boolean(email),
+        hasCustomerId: Boolean(customerId),
+        priceId,
+      });
+      const session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        customer: customerId,
+        customer_email: customerId ? undefined : email,
+        client_reference_id: userId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        subscription_data: {
+          trial_period_days: TRIAL_DAYS,
+          metadata: { user_id: userId },
+        },
         metadata: { user_id: userId },
-      },
-      metadata: { user_id: userId },
-      success_url: `${origin}/suscripcion?status=success`,
-      cancel_url: `${origin}/suscripcion?status=cancel`,
-      allow_promotion_codes: true,
-    });
+        success_url: `${origin}/suscripcion?status=success`,
+        cancel_url: `${origin}/suscripcion?status=cancel`,
+        allow_promotion_codes: true,
+      });
 
-    return { url: session.url };
+      if (!session.url) throw new Error("Stripe no devolvió una URL de checkout.");
+      return { url: session.url };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[stripe.checkout] Error creating checkout session", error);
+      throw new Error(`No se pudo crear la sesión de Stripe: ${message}`);
+    }
   });
 
 export const createPortalSession = createServerFn({ method: "POST" })

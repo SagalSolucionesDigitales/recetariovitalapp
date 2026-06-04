@@ -49,6 +49,7 @@ export const updateProfileBasics = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({
     nombre: z.string().trim().min(1).max(80).optional(),
     glucosa_referencia: z.enum(["100-110", "111-125", "no-se"]).optional(),
+    restricciones: z.array(z.string()).max(10).optional(),
     tiempo_cocina: z.enum(["menos15", "15-30", "mas30"]).optional(),
     personas: z.enum(["1", "2", "3+"]).optional(),
     presupuesto: z.enum(["menos500", "500-1000", "mas1000"]).optional(),

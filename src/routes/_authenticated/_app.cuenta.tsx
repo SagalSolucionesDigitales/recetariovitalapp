@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2 } from "lucide-react";
+import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2, Check } from "lucide-react";
 import { getMyProfile, updateProfileBasics } from "@/lib/profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ function CuentaPage() {
 
   const [nombre, setNombre] = useState("");
   const [glu, setGlu] = useState<string>("");
+  const [rest, setRest] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<string>("");
   const [personas, setPersonas] = useState<string>("");
   const [presup, setPresup] = useState<string>("");
@@ -29,6 +30,7 @@ function CuentaPage() {
     if (profile) {
       setNombre(profile.nombre ?? "");
       setGlu(profile.glucosa_referencia ?? "");
+      setRest(profile.restricciones ?? []);
       setTiempo(profile.tiempo_cocina ?? "");
       setPersonas(profile.personas ?? "");
       setPresup(profile.presupuesto ?? "");
@@ -39,6 +41,7 @@ function CuentaPage() {
     mutationFn: () => update({ data: {
       nombre: nombre || undefined,
       glucosa_referencia: (glu || undefined) as never,
+      restricciones: rest,
       tiempo_cocina: (tiempo || undefined) as never,
       personas: (personas || undefined) as never,
       presupuesto: (presup || undefined) as never,
@@ -89,6 +92,7 @@ function CuentaPage() {
               ["111-125", "111–125 mg/dL"],
               ["no-se", "No lo sé exactamente"],
             ]} />
+            <MultiCheck label="Restricciones alimentarias" value={rest} onChange={setRest} />
             <Select label="Tiempo de cocina" value={tiempo} onChange={setTiempo} options={[
               ["menos15", "Menos de 15 min"],
               ["15-30", "15–30 min"],
@@ -151,6 +155,41 @@ function Select({ label, value, onChange, options }: { label: string; value: str
         <option value="">Selecciona…</option>
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
+    </div>
+  );
+}
+
+function MultiCheck({ label, value, onChange }: { label: string; value: string[]; onChange: (v: string[]) => void }) {
+  const options = [
+    ["gluten", "🌾 Gluten"],
+    ["lacteos", "🥛 Lácteos"],
+    ["mariscos", "🦐 Mariscos"],
+    ["cerdo", "🥩 Cerdo"],
+    ["picante", "🌶️ Picante"],
+    ["ninguno", "✅ Ninguno"],
+  ] as const;
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="grid grid-cols-2 gap-2">
+        {options.map(([id, text]) => {
+          const selected = value.includes(id);
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => {
+                if (id === "ninguno") onChange(selected ? [] : ["ninguno"]);
+                else onChange(selected ? value.filter(x => x !== id) : [...value.filter(x => x !== "ninguno"), id]);
+              }}
+              className={`flex min-h-11 items-center justify-between rounded-lg border px-3 py-2 text-left text-sm ${selected ? "border-primary bg-primary-soft" : "border-border bg-background"}`}
+            >
+              <span>{text}</span>
+              {selected && <Check className="h-4 w-4 text-primary" strokeWidth={3} />}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
