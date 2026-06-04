@@ -40,7 +40,7 @@ function OnboardingPage() {
   }, [fetchProfile, navigate]);
 
   const total = 5;
-  const canNext = step === 1 ? !!glu : step === 2 ? true : step === 3 ? !!tiempo : step === 4 ? !!personas : !!presup;
+  const canNext = step === 1 ? !!glu : step === 2 ? rest.length > 0 : step === 3 ? !!tiempo : step === 4 ? !!personas : !!presup;
 
   function next() {
     if (step < total) setStep(step + 1);
