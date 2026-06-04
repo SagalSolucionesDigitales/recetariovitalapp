@@ -23,6 +23,15 @@ function passwordStrength(pw: string): 0 | 1 | 2 | 3 {
   return Math.min(s, 3) as 0 | 1 | 2 | 3;
 }
 
+async function waitForActiveSession(attempts = 8) {
+  for (let i = 0; i < attempts; i++) {
+    const { data } = await supabase.auth.getSession();
+    if (data.session?.access_token) return data.session;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  return null;
+}
+
 function SignupPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -44,8 +53,9 @@ function SignupPage() {
     e.preventDefault();
     if (!valid) return;
     setLoading(true);
+    const normalizedEmail = email.trim().toLowerCase();
     const { data: signUpData, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password: pw,
       options: {
         emailRedirectTo: window.location.origin + "/onboarding",
@@ -57,15 +67,17 @@ function SignupPage() {
       toast.error(error.message);
       return;
     }
-    if (!signUpData.session) {
+    const activeSession = signUpData.session ?? await waitForActiveSession();
+    if (!activeSession) {
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password: pw,
       });
       if (signInError) {
         setLoading(false);
         console.error("[signup] No se pudo iniciar sesión automáticamente después del registro", signInError);
-        toast.error(`Cuenta creada, pero no pudimos iniciar sesión automáticamente: ${signInError.message}`);
+        toast.error("Cuenta creada. Inicia sesión para continuar al onboarding.");
+        navigate({ to: "/login" });
         return;
       }
     }
