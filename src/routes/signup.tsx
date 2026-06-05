@@ -83,6 +83,7 @@ function SignupPage() {
     }
     setLoading(false);
     setSuccess(true);
+    navigate({ to: "/onboarding" });
   }
 
   async function googleSignup() {
