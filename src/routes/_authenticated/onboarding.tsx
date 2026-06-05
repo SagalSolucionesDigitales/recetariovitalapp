@@ -49,15 +49,19 @@ function OnboardingPage() {
 
   async function finish() {
     if (!glu || !tiempo || !personas || !presup) return;
+    if (generating) return;
     setGenerating(true);
     try {
       await save({ data: { glucosa_referencia: glu, restricciones: rest, tiempo_cocina: tiempo, personas, presupuesto: presup } });
-      await genPlan().catch(() => null); // best-effort
-      navigate({ to: "/dashboard" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Algo salió mal");
+      console.error("[onboarding] saveOnboarding failed", e);
+      toast.error(e instanceof Error ? e.message : "No pudimos guardar tu perfil. Intenta de nuevo.");
       setGenerating(false);
+      return;
     }
+    // Plan generation runs in background — don't block navigation
+    void genPlan().catch((e) => console.error("[onboarding] genPlan failed", e));
+    navigate({ to: "/dashboard", replace: true });
   }
 
   if (summary) {
