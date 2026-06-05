@@ -51,8 +51,10 @@ function CuentaPage() {
   });
 
   async function logout() {
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    navigate({ to: "/", replace: true });
   }
 
   const initials = (nombre || "RV").slice(0, 2).toUpperCase();

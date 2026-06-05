@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Bell, Globe, Shield, FileText, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +16,7 @@ const defaults: Prefs = { recordatorioCheckin: true, recordatorioComidas: false,
 
 function AjustesPage() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [prefs, setPrefs] = useState<Prefs>(defaults);
 
   useEffect(() => {
@@ -32,8 +34,10 @@ function AjustesPage() {
   }
 
   async function logout() {
+    await qc.cancelQueries();
+    qc.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    navigate({ to: "/", replace: true });
   }
 
   return (
