@@ -64,6 +64,7 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    await requireActiveSubscription(supabase, userId);
     const { data: perfil } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
     if (!perfil) throw new Error("Perfil no encontrado");
 
