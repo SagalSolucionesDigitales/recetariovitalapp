@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireActiveSubscription } from "./subscription.functions";
 import { z } from "zod";
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -63,6 +64,7 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
+    await requireActiveSubscription(supabase, userId);
     const { data: perfil } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
     if (!perfil) throw new Error("Perfil no encontrado");
 
@@ -113,6 +115,7 @@ export const askCamila = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ mensaje: z.string().trim().min(1).max(1000) }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await requireActiveSubscription(supabase, userId);
     const [{ data: perfil }, { data: checkins }, { data: history }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
       supabase.from("check_ins").select("*").eq("user_id", userId).order("fecha", { ascending: false }).limit(5),
