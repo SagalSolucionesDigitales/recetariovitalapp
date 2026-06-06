@@ -104,30 +104,41 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 export const createPortalSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId, claims } = context;
-    const email = (claims as { email?: string } | undefined)?.email;
-    const stripe = await getStripe();
+    try {
+      const { supabase, userId, claims } = context;
+      const email = (claims as { email?: string } | undefined)?.email;
+      const stripe = await getStripe();
 
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("stripe_customer_id")
-      .eq("user_id", userId)
-      .not("stripe_customer_id", "is", null)
-      .order("creado_en", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .not("stripe_customer_id", "is", null)
+        .order("creado_en", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    let customerId = sub?.stripe_customer_id as string | undefined;
-    if (!customerId && email) {
-      const found = await stripe.customers.list({ email, limit: 1 });
-      customerId = found.data[0]?.id;
+      let customerId = sub?.stripe_customer_id as string | undefined;
+      if (!customerId && email) {
+        const found = await stripe.customers.list({ email, limit: 1 });
+        customerId = found.data[0]?.id;
+      }
+      if (!customerId) throw new Error("No se encontró un cliente de Stripe para tu cuenta.");
+
+      const origin = getOrigin();
+      const portal = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: `${origin}/suscripcion`,
+      });
+      return { url: portal.url };
+    } catch (error) {
+      console.error("[stripe.portal] Error creating portal session", error);
+      if (error instanceof Error && (
+        error.message.startsWith("Configuración de Stripe") ||
+        error.message.startsWith("No se encontró un cliente")
+      )) {
+        throw error;
+      }
+      throw new Error("No se pudo abrir el portal de suscripción. Inténtalo de nuevo.");
     }
-    if (!customerId) throw new Error("No se encontró un cliente de Stripe para tu cuenta.");
-
-    const origin = getOrigin();
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: `${origin}/suscripcion`,
-    });
-    return { url: portal.url };
   });
