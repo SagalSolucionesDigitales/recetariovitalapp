@@ -93,9 +93,11 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
       if (!session.url) throw new Error("Stripe no devolvió una URL de checkout.");
       return { url: session.url };
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
       console.error("[stripe.checkout] Error creating checkout session", error);
-      throw new Error(`No se pudo crear la sesión de Stripe: ${message}`);
+      if (error instanceof Error && error.message.startsWith("Configuración de Stripe")) {
+        throw error;
+      }
+      throw new Error("No se pudo iniciar el pago. Inténtalo de nuevo o contacta soporte.");
     }
   });
 
