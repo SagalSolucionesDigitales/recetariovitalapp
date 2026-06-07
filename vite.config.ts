@@ -8,7 +8,15 @@ export default defineConfig({
   },
   vite: {
     plugins: [
-      nitro({ preset: "vercel" }),
+      nitro({
+        preset: "vercel",
+        vercel: {
+          entryFormat: "node",
+          functions: {
+            runtime: "nodejs20.x",
+          },
+        },
+      }),
     ],
   },
 });
