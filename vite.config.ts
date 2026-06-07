@@ -16,11 +16,12 @@ export default defineConfig({
     ? {
         nitro: {
           preset: "vercel",
-          // Cast: serveStatic + vercel.functions.runtime are valid Nitro options
+          // Cast: serveStatic + vercel.entryFormat + vercel.functions.runtime are valid Nitro options
           // but not surfaced in @lovable.dev/vite-tanstack-config's narrower type.
           ...({
             serveStatic: true,
             vercel: {
+              entryFormat: "node",
               functions: {
                 runtime: "nodejs20.x",
               },
