@@ -23,14 +23,7 @@ function passwordStrength(pw: string): 0 | 1 | 2 | 3 {
   return Math.min(s, 3) as 0 | 1 | 2 | 3;
 }
 
-async function waitForActiveSession(attempts = 8) {
-  for (let i = 0; i < attempts; i++) {
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.access_token) return data.session;
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-  return null;
-}
+
 
 function SignupPage() {
   const navigate = useNavigate();
