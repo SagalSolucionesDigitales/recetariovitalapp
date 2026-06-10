@@ -59,31 +59,17 @@ function SignupPage() {
       password: pw,
       options: {
         emailRedirectTo: window.location.origin + "/onboarding",
-        data: { email_confirm: false },
       },
     });
+    setLoading(false);
     if (error) {
-      setLoading(false);
       toast.error(error.message);
       return;
     }
-    const activeSession = signUpData.session ?? await waitForActiveSession();
-    if (!activeSession) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password: pw,
-      });
-      if (signInError) {
-        setLoading(false);
-        console.error("[signup] No se pudo iniciar sesión automáticamente después del registro", signInError);
-        toast.error("Cuenta creada. Inicia sesión para continuar al onboarding.");
-        navigate({ to: "/login" });
-        return;
-      }
-    }
-    setLoading(false);
+    // Forzamos cierre de sesión por si Supabase devolvió tokens automáticamente.
+    // El usuario debe confirmar su correo antes de entrar a la app.
+    await supabase.auth.signOut().catch(() => {});
     setSuccess(true);
-    navigate({ to: "/onboarding" });
   }
 
   async function googleSignup() {
@@ -95,17 +81,20 @@ function SignupPage() {
     return (
       <div className="app-shell flex min-h-screen flex-col items-center justify-center bg-primary px-6 text-center text-white">
         <div className="grid h-16 w-16 place-items-center rounded-full bg-white/15">
-          <Check className="h-8 w-8" strokeWidth={2.5} />
+          <Mail className="h-8 w-8" strokeWidth={2} />
         </div>
-        <h1 className="mt-6 font-serif text-3xl">¡Tu cuenta está lista!</h1>
-        <p className="mt-3 max-w-xs text-sm text-white/75">
-          Tienes 7 días con acceso completo. Vamos a armar tu perfil para que tu primer plan se ajuste a ti.
+        <h1 className="mt-6 font-serif text-[32px] leading-tight">¡Revisa tu correo!</h1>
+        <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-white/85">
+          Te enviamos un correo a <span className="font-medium text-white">{email}</span> para confirmar tu cuenta. Haz clic en el enlace del correo y luego inicia sesión para empezar.
+        </p>
+        <p className="mt-4 max-w-xs text-xs text-white/65">
+          ¿No lo ves? Revisa tu carpeta de spam.
         </p>
         <button
-          onClick={() => navigate({ to: "/onboarding" })}
-          className="mt-8 w-full rounded-2xl bg-accent px-5 py-4 text-base font-medium text-accent-foreground"
+          onClick={() => navigate({ to: "/login" })}
+          className="mt-8 w-full max-w-sm rounded-2xl bg-accent px-5 py-4 text-base font-medium text-accent-foreground"
         >
-          Armar mi perfil
+          Ir a iniciar sesión
         </button>
       </div>
     );
