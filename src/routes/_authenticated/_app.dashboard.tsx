@@ -50,7 +50,8 @@ function Dashboard() {
 
   return (
     <>
-      <header className="bg-primary px-5 pb-6 pt-5 text-primary-foreground">
+      <header className="bg-primary text-primary-foreground">
+        <div className="mx-auto max-w-2xl px-5 pb-6 pt-5">
         <div className="flex items-center justify-between">
           <span className="font-serif text-lg">Recetario <em className="italic">Vital</em></span>
           <Link to="/cuenta" className="grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-white/15 text-xs font-medium">
@@ -61,9 +62,10 @@ function Dashboard() {
         <p className="mt-1 text-xs text-white/65">
           {dayName} · Semana en curso{racha > 0 ? ` · ${racha} días seguidos ✓` : ""}
         </p>
+        </div>
       </header>
 
-      <main className="space-y-3.5 px-5 py-5">
+      <main className="mx-auto max-w-2xl space-y-3.5 px-5 py-5">
         {/* Check-in */}
         {todayCheckin ? (
           <div className="flex items-center gap-3 rounded-2xl bg-primary-soft p-4">

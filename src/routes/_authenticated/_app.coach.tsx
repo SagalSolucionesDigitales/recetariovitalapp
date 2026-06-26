@@ -44,7 +44,8 @@ function CoachPage() {
 
   return (
     <div className="flex h-[100dvh] flex-col">
-      <header className="bg-primary px-5 pb-4 pt-5 text-primary-foreground">
+      <header className="bg-primary text-primary-foreground shrink-0">
+        <div className="mx-auto max-w-2xl px-5 pb-4 pt-5">
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-white/15 font-serif text-lg">C</div>
           <div className="flex-1">
@@ -53,20 +54,24 @@ function CoachPage() {
           </div>
           <span className="h-2 w-2 rounded-full bg-[oklch(0.78_0.16_150)]" />
         </div>
+        </div>
       </header>
 
-      <div className="border-b border-border bg-card px-4 py-2.5">
-        <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Preguntas rápidas</p>
-        <div className="flex gap-2 overflow-x-auto">
-          {quick.map(q => (
-            <button key={q} onClick={() => send(q)} className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 text-xs hover:bg-primary-soft">
-              {q}
-            </button>
-          ))}
+      <div className="shrink-0 border-b border-border bg-card">
+        <div className="mx-auto max-w-2xl px-4 py-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Preguntas rápidas</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {quick.map(q => (
+              <button key={q} onClick={() => send(q)} className="shrink-0 rounded-full border border-border bg-background px-3 py-1.5 text-xs hover:bg-primary-soft">
+                {q}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-28">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto pb-28 lg:pb-20">
+        <div className="mx-auto max-w-2xl space-y-3 px-4 py-4">
         {/* Welcome */}
         <CamilaBubble first>
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -102,27 +107,31 @@ function CoachPage() {
             </span>
           </CamilaBubble>
         )}
+        </div>
       </div>
 
-      <div className="fixed bottom-[68px] left-1/2 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-card p-3">
-        <form
-          onSubmit={(e) => { e.preventDefault(); send(text); }}
-          className="flex items-center gap-2"
-        >
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Escribe tu duda nutricional…"
-            className="flex-1 rounded-full bg-background px-4 py-2.5 text-sm outline-none ring-1 ring-border focus:ring-primary/40"
-          />
-          <button
-            type="submit"
-            disabled={!text.trim() || mut.isPending}
-            className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-40"
+      {/* Input fijo: en móvil sube sobre el BottomNav; en desktop ocupa el ancho del área de contenido */}
+      <div className="fixed bottom-[68px] left-0 right-0 border-t border-border bg-card p-3 lg:bottom-0 lg:left-64">
+        <div className="mx-auto max-w-2xl">
+          <form
+            onSubmit={(e) => { e.preventDefault(); send(text); }}
+            className="flex items-center gap-2"
           >
-            <Send className="h-4 w-4" />
-          </button>
-        </form>
+            <input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Escribe tu duda nutricional…"
+              className="flex-1 rounded-full bg-background px-4 py-2.5 text-sm outline-none ring-1 ring-border focus:ring-primary/40"
+            />
+            <button
+              type="submit"
+              disabled={!text.trim() || mut.isPending}
+              className="grid h-10 w-10 place-items-center rounded-full bg-primary text-primary-foreground disabled:opacity-40"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -118,13 +118,12 @@
   }
 }
 
-/* Mobile-first centered shell on desktop */
-@layer utilities {
+@layer components {
+  /* Public pages (splash, login, signup, onboarding) — mobile-app shell centered on desktop */
   .app-shell {
     max-width: 430px;
+    width: 100%;
     margin-inline: auto;
-    min-height: 100vh;
-    background-color: var(--color-background);
-    position: relative;
   }
 }
+

@@ -11,7 +11,7 @@ const items = [
 export function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-card/95 backdrop-blur">
+    <nav className="lg:hidden fixed bottom-0 left-0 z-40 w-full border-t border-border bg-card/95 backdrop-blur">
       <ul className="grid grid-cols-4 px-2 pb-[calc(env(safe-area-inset-bottom)+6px)] pt-2">
         {items.map(({ to, label, icon: Icon }) => {
           const active = pathname.startsWith(to);

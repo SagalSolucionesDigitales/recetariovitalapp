@@ -201,7 +201,7 @@ function OnboardingPage() {
         )}
       </main>
 
-      <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-background p-4">
+      <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-background p-4 sm:left-1/2 sm:max-w-[430px] sm:-translate-x-1/2">
         <button
           onClick={next}
           disabled={!canNext}

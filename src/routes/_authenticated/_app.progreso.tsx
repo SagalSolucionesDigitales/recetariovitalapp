@@ -109,7 +109,8 @@ function ProgresoPage() {
 
   return (
     <>
-      <header className="bg-primary px-5 pb-5 pt-5 text-primary-foreground">
+      <header className="bg-primary text-primary-foreground">
+        <div className="mx-auto max-w-2xl px-5 pb-5 pt-5">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-serif text-2xl">Mi progreso</h1>
@@ -124,9 +125,10 @@ function ProgresoPage() {
             PDF
           </button>
         </div>
+        </div>
       </header>
 
-      <main className="space-y-4 px-5 py-5">
+      <main className="mx-auto max-w-2xl space-y-4 px-5 py-5">
         {todayCheckin ? (
           <div className="flex items-center gap-3 rounded-2xl bg-primary-soft p-4">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">

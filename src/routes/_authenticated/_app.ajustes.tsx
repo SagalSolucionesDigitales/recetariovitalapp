@@ -42,15 +42,17 @@ function AjustesPage() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b border-border bg-background px-5 py-4">
-        <Link to="/cuenta" className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card">
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <h1 className="font-serif text-lg">Ajustes</h1>
-        <span className="w-9" />
+      <header className="border-b border-border bg-background">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
+          <Link to="/cuenta" className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <h1 className="font-serif text-lg">Ajustes</h1>
+          <span className="w-9" />
+        </div>
       </header>
 
-      <main className="space-y-5 px-5 py-5 pb-24">
+      <main className="mx-auto max-w-2xl space-y-5 px-5 py-5 pb-24 lg:pb-8">
         <Group title="Notificaciones" icon={Bell}>
           <Toggle label="Recordatorio diario de check-in" sub="Te avisamos a las 8 pm" value={prefs.recordatorioCheckin} onChange={(v) => update("recordatorioCheckin", v)} />
           <Toggle label="Recordatorios de comidas" sub="Notificación a la hora de cada comida" value={prefs.recordatorioComidas} onChange={(v) => update("recordatorioComidas", v)} />
