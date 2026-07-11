@@ -4,6 +4,21 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { getMyProfile, saveOnboarding } from "@/lib/profile.functions";
 import { generateWeeklyPlan } from "@/lib/ai.functions";
+import {
+  type CondicionSalud,
+  CONDICIONES,
+  condicionLabel,
+  GLUCOSA_OPCIONES,
+  COLESTEROL_OPCIONES,
+  CINTURA_OPCIONES,
+  RESTRICCIONES_OPCIONES,
+  TIEMPO_OPCIONES,
+  PERSONAS_OPCIONES,
+  PRESUPUESTO_OPCIONES,
+  calcularIMC,
+  categorizarIMC,
+  IMC_LABELS,
+} from "@/lib/condiciones";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -12,6 +27,8 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 type Glu = "100-110" | "111-125" | "no-se";
+type Colesterol = "menos200" | "200-239" | "mas240" | "no-se";
+type Cintura = "menos80" | "80-99" | "mas100" | "no-se";
 type Tiempo = "menos15" | "15-30" | "mas30";
 type Personas = "1" | "2" | "3+";
 type Presup = "menos500" | "500-1000" | "mas1000";
@@ -23,7 +40,12 @@ function OnboardingPage() {
   const genPlan = useServerFn(generateWeeklyPlan);
 
   const [step, setStep] = useState(1);
+  const [condicion, setCondicion] = useState<CondicionSalud | null>(null);
   const [glu, setGlu] = useState<Glu | null>(null);
+  const [colesterol, setColesterol] = useState<Colesterol | null>(null);
+  const [cintura, setCintura] = useState<Cintura | null>(null);
+  const [pesoKg, setPesoKg] = useState<number | null>(null);
+  const [estaturaCm, setEstaturaCm] = useState<number | null>(null);
   const [rest, setRest] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<Tiempo | null>(null);
   const [personas, setPersonas] = useState<Personas | null>(null);
@@ -39,8 +61,20 @@ function OnboardingPage() {
     });
   }, [fetchProfile, navigate]);
 
-  const total = 5;
-  const canNext = step === 1 ? !!glu : step === 2 ? rest.length > 0 : step === 3 ? !!tiempo : step === 4 ? !!personas : !!presup;
+  const total = 6;
+  const indicadorValido =
+    condicion === "prediabetes" ? !!glu :
+    condicion === "cardiovascular" ? !!colesterol :
+    condicion === "sindrome_metabolico" ? !!cintura :
+    condicion === "control_peso" ? !!(pesoKg && estaturaCm) :
+    false;
+  const canNext =
+    step === 1 ? !!condicion :
+    step === 2 ? indicadorValido :
+    step === 3 ? rest.length > 0 :
+    step === 4 ? !!tiempo :
+    step === 5 ? !!personas :
+    !!presup;
 
   function next() {
     if (step < total) setStep(step + 1);
@@ -48,11 +82,19 @@ function OnboardingPage() {
   }
 
   async function finish() {
-    if (!glu || !tiempo || !personas || !presup) return;
+    if (!condicion || !indicadorValido || !tiempo || !personas || !presup) return;
     if (generating) return;
     setGenerating(true);
     try {
-      await save({ data: { glucosa_referencia: glu, restricciones: rest, tiempo_cocina: tiempo, personas, presupuesto: presup } });
+      await save({ data: {
+        condicion_salud: condicion,
+        glucosa_referencia: condicion === "prediabetes" ? glu : null,
+        colesterol_nivel: condicion === "cardiovascular" ? colesterol : null,
+        circunferencia_cintura: condicion === "sindrome_metabolico" ? cintura : null,
+        peso_kg: condicion === "control_peso" ? pesoKg : null,
+        estatura_cm: condicion === "control_peso" ? estaturaCm : null,
+        restricciones: rest, tiempo_cocina: tiempo, personas, presupuesto: presup,
+      } });
     } catch (e) {
       console.error("[onboarding] saveOnboarding failed", e);
       toast.error(e instanceof Error ? e.message : "No pudimos guardar tu perfil. Intenta de nuevo.");
@@ -62,6 +104,27 @@ function OnboardingPage() {
     // Plan generation runs in background — don't block navigation
     void genPlan().catch((e) => console.error("[onboarding] genPlan failed", e));
     navigate({ to: "/dashboard", replace: true });
+  }
+
+  function encouragement() {
+    if (condicion === "cardiovascular") return "Con estos hábitos mediterráneos podemos mejorar tu colesterol de forma sostenida. Empecemos.";
+    if (condicion === "sindrome_metabolico") return "La combinación correcta de porciones y fibra hace una diferencia real en pocas semanas.";
+    if (condicion === "control_peso") return "Con un plan mediterráneo sostenible, la pérdida de peso se vuelve constante y sin privaciones.";
+    return glu === "111-125"
+      ? "Con glucosa en ese rango, la consistencia en el plan marca una diferencia real en pocas semanas. Empecemos."
+      : glu === "100-110"
+      ? "Estás en el momento ideal para actuar. Con este perfil podemos revertir la tendencia con ajustes concretos."
+      : "Hola, ya conozco tu punto de partida. Tu primer plan estará listo en segundos.";
+  }
+
+  function indicadorLabel(): string {
+    if (condicion === "cardiovascular") return COLESTEROL_OPCIONES.find(o => o.id === colesterol)?.label ?? "";
+    if (condicion === "sindrome_metabolico") return CINTURA_OPCIONES.find(o => o.id === cintura)?.label ?? "";
+    if (condicion === "control_peso" && pesoKg && estaturaCm) {
+      const imc = calcularIMC(pesoKg, estaturaCm);
+      return `IMC ${imc.toFixed(1)} (${IMC_LABELS[categorizarIMC(imc)]})`;
+    }
+    return GLUCOSA_OPCIONES.find(o => o.id === glu)?.label ?? "";
   }
 
   if (summary) {
@@ -75,7 +138,8 @@ function OnboardingPage() {
           <p className="mt-2 text-sm text-muted-foreground">Camila usará esta información para generar tu primer plan personalizado.</p>
 
           <div className="mt-6 space-y-2.5 rounded-2xl border border-border bg-card p-4 text-left">
-            <Row label="Glucosa" value={gluLabel(glu)} />
+            <Row label="Condición" value={condicionLabel(condicion)} />
+            <Row label="Indicador" value={indicadorLabel()} />
             <Row label="Restricciones" value={rest.length ? rest.map(restLabel).join(", ") : "Ninguna"} />
             <Row label="Tiempo de cocina" value={tiempoLabel(tiempo)} />
             <Row label="Personas en casa" value={personasLabel(personas)} />
@@ -84,13 +148,7 @@ function OnboardingPage() {
 
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-primary-soft p-4 text-left">
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary font-serif text-white">C</div>
-            <p className="text-sm text-primary">
-              {glu === "111-125"
-                ? "Con glucosa en ese rango, la consistencia en el plan marca una diferencia real en pocas semanas. Empecemos."
-                : glu === "100-110"
-                ? "Estás en el momento ideal para actuar. Con este perfil podemos revertir la tendencia con ajustes concretos."
-                : "Hola, ya conozco tu punto de partida. Tu primer plan estará listo en segundos."}
-            </p>
+            <p className="text-sm text-primary">{encouragement()}</p>
           </div>
 
           <button
@@ -127,31 +185,76 @@ function OnboardingPage() {
       <main className="px-6 pb-28 pt-7">
         {step === 1 && (
           <Step
+            eyebrow="TU CONDICIÓN"
+            title="¿Cuál es tu condición de salud principal?"
+            subtitle="Con esto adaptamos tu plan de Dieta Mediterránea-Mexicana a lo que más te ayuda."
+          >
+            {CONDICIONES.map(c => (
+              <RadioCard key={c.id} active={condicion === c.id} onClick={() => setCondicion(c.id)} title={c.title} sub={c.sub} />
+            ))}
+          </Step>
+        )}
+
+        {step === 2 && condicion === "prediabetes" && (
+          <Step
             eyebrow="TU PUNTO DE PARTIDA"
             title="¿Cuál fue tu resultado de glucosa en ayunas?"
             subtitle="Lo usaremos para personalizar tu plan. No te preocupes si no lo recuerdas exacto."
           >
-            <RadioCard active={glu === "100-110"} onClick={() => setGlu("100-110")} title="Entre 100 y 110 mg/dL" sub="Prediabetes leve — con ajustes se revierte fácilmente" />
-            <RadioCard active={glu === "111-125"} onClick={() => setGlu("111-125")} title="Entre 111 y 125 mg/dL" sub="Prediabetes moderada — el plan marcará una diferencia real" />
-            <RadioCard active={glu === "no-se"} onClick={() => setGlu("no-se")} title="No lo sé exactamente" sub="Sin problema, igual armamos tu plan" />
+            {GLUCOSA_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={glu === o.id} onClick={() => setGlu(o.id as Glu)} title={o.title} sub={o.sub} />
+            ))}
           </Step>
         )}
 
-        {step === 2 && (
+        {step === 2 && condicion === "cardiovascular" && (
+          <Step
+            eyebrow="TU PUNTO DE PARTIDA"
+            title="¿Cuál fue tu último resultado de colesterol total?"
+            subtitle="Lo usaremos para priorizar grasas saludables en tu plan. No te preocupes si no lo recuerdas exacto."
+          >
+            {COLESTEROL_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={colesterol === o.id} onClick={() => setColesterol(o.id as Colesterol)} title={o.title} sub={o.sub} />
+            ))}
+          </Step>
+        )}
+
+        {step === 2 && condicion === "sindrome_metabolico" && (
+          <Step
+            eyebrow="TU PUNTO DE PARTIDA"
+            title="¿Cuál es tu circunferencia de cintura?"
+            subtitle="Mídela a la altura del ombligo, sin apretar."
+          >
+            {CINTURA_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={cintura === o.id} onClick={() => setCintura(o.id as Cintura)} title={o.title} sub={o.sub} />
+            ))}
+          </Step>
+        )}
+
+        {step === 2 && condicion === "control_peso" && (
+          <Step
+            eyebrow="TU PUNTO DE PARTIDA"
+            title="Cuéntanos tu peso y estatura"
+            subtitle="Calculamos tu IMC para personalizar tu plan de control de peso."
+          >
+            <NumberField label="Peso actual" value={pesoKg} onChange={setPesoKg} suffix="kg" placeholder="Ej. 78" />
+            <NumberField label="Estatura" value={estaturaCm} onChange={setEstaturaCm} suffix="cm" placeholder="Ej. 165" />
+            {pesoKg && estaturaCm ? (
+              <p className="text-sm text-primary">
+                IMC estimado: {calcularIMC(pesoKg, estaturaCm).toFixed(1)} — {IMC_LABELS[categorizarIMC(calcularIMC(pesoKg, estaturaCm))]}
+              </p>
+            ) : null}
+          </Step>
+        )}
+
+        {step === 3 && (
           <Step
             eyebrow="LO QUE EVITAMOS"
             title="¿Qué alimentos evitas o no toleras?"
             subtitle="Puedes elegir varias opciones. Tu plan no incluirá estos ingredientes."
           >
             <div className="grid grid-cols-2 gap-3">
-              {[
-                { id: "gluten", l: "🌾 Gluten" },
-                { id: "lacteos", l: "🥛 Lácteos" },
-                { id: "mariscos", l: "🦐 Mariscos" },
-                { id: "cerdo", l: "🥩 Cerdo" },
-                { id: "picante", l: "🌶️ Picante" },
-                { id: "ninguno", l: "✅ Ninguno por ahora" },
-              ].map(({ id, l }) => {
+              {RESTRICCIONES_OPCIONES.map(({ id, l }) => {
                 const sel = rest.includes(id);
                 return (
                   <button
@@ -176,27 +279,27 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 3 && (
-          <Step eyebrow="TU RITMO DE VIDA" title="¿Cuánto tiempo tienes para cocinar por comida?" subtitle="Diseñaremos recetas que se ajusten a tu disponibilidad real.">
-            <RadioCard active={tiempo === "menos15"} onClick={() => setTiempo("menos15")} title="Menos de 15 minutos" sub="Recetas rápidas, ingredientes simples" />
-            <RadioCard active={tiempo === "15-30"} onClick={() => setTiempo("15-30")} title="Entre 15 y 30 minutos" sub="El rango ideal para variedad y nutrición" />
-            <RadioCard active={tiempo === "mas30"} onClick={() => setTiempo("mas30")} title="Más de 30 minutos" sub="Recetas más elaboradas y con mayor variedad" />
-          </Step>
-        )}
-
         {step === 4 && (
-          <Step eyebrow="TU ENTORNO" title="¿Para cuántas personas cocinas?" subtitle="Ajustaremos las porciones y la lista de compras a tu realidad.">
-            <RadioCard active={personas === "1"} onClick={() => setPersonas("1")} title="Solo para mí" sub="Porciones individuales, menos desperdicio" />
-            <RadioCard active={personas === "2"} onClick={() => setPersonas("2")} title="Para 2 personas" sub="Porciones dobles, compras eficientes" />
-            <RadioCard active={personas === "3+"} onClick={() => setPersonas("3+")} title="Para 3 o más" sub="Porciones familiares, recetas rindidoras" />
+          <Step eyebrow="TU RITMO DE VIDA" title="¿Cuánto tiempo tienes para cocinar por comida?" subtitle="Diseñaremos recetas que se ajusten a tu disponibilidad real.">
+            {TIEMPO_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={tiempo === o.id} onClick={() => setTiempo(o.id as Tiempo)} title={o.title} sub={o.sub} />
+            ))}
           </Step>
         )}
 
         {step === 5 && (
+          <Step eyebrow="TU ENTORNO" title="¿Para cuántas personas cocinas?" subtitle="Ajustaremos las porciones y la lista de compras a tu realidad.">
+            {PERSONAS_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={personas === o.id} onClick={() => setPersonas(o.id as Personas)} title={o.title} sub={o.sub} />
+            ))}
+          </Step>
+        )}
+
+        {step === 6 && (
           <Step eyebrow="TU PRESUPUESTO" title="¿Cuánto destinas a la compra semanal de alimentos?" subtitle="Priorizaremos ingredientes accesibles y nutritivos dentro de tu rango.">
-            <RadioCard active={presup === "menos500"} onClick={() => setPresup("menos500")} title="Menos de $500 MXN" sub="Recetas económicas con ingredientes de mercado local" />
-            <RadioCard active={presup === "500-1000"} onClick={() => setPresup("500-1000")} title="Entre $500 y $1,000 MXN" sub="Buen balance entre variedad y costo" />
-            <RadioCard active={presup === "mas1000"} onClick={() => setPresup("mas1000")} title="Más de $1,000 MXN" sub="Mayor variedad y opciones especializadas" />
+            {PRESUPUESTO_OPCIONES.map(o => (
+              <RadioCard key={o.id} active={presup === o.id} onClick={() => setPresup(o.id as Presup)} title={o.title} sub={o.sub} />
+            ))}
           </Step>
         )}
       </main>
@@ -243,6 +346,27 @@ function RadioCard({ active, onClick, title, sub }: { active: boolean; onClick: 
   );
 }
 
+function NumberField({ label, value, onChange, suffix, placeholder }: {
+  label: string; value: number | null; onChange: (v: number | null) => void; suffix: string; placeholder: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          type="number"
+          inputMode="decimal"
+          value={value ?? ""}
+          onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+          placeholder={placeholder}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-lg font-medium outline-none focus:border-primary/40"
+        />
+        <span className="shrink-0 text-sm text-muted-foreground">{suffix}</span>
+      </div>
+    </div>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-3 text-sm">
@@ -252,18 +376,15 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function gluLabel(g: Glu | null) {
-  return g === "100-110" ? "100–110 mg/dL" : g === "111-125" ? "111–125 mg/dL" : "Sin dato exacto";
-}
 function restLabel(r: string) {
-  return ({ gluten: "Gluten", lacteos: "Lácteos", mariscos: "Mariscos", cerdo: "Cerdo", picante: "Picante", ninguno: "Ninguno" } as Record<string, string>)[r] ?? r;
+  return RESTRICCIONES_OPCIONES.find(o => o.id === r)?.l.replace(/^\S+\s/, "") ?? r;
 }
 function tiempoLabel(t: Tiempo | null) {
-  return t === "menos15" ? "< 15 min" : t === "15-30" ? "15–30 min" : t === "mas30" ? "> 30 min" : "";
+  return TIEMPO_OPCIONES.find(o => o.id === t)?.label ?? "";
 }
 function personasLabel(p: Personas | null) {
-  return p === "1" ? "1 persona" : p === "2" ? "2 personas" : p === "3+" ? "3 o más" : "";
+  return PERSONAS_OPCIONES.find(o => o.id === p)?.label ?? "";
 }
 function presupLabel(p: Presup | null) {
-  return p === "menos500" ? "< $500 MXN" : p === "500-1000" ? "$500–$1,000 MXN" : p === "mas1000" ? "> $1,000 MXN" : "";
+  return PRESUPUESTO_OPCIONES.find(o => o.id === p)?.label ?? "";
 }

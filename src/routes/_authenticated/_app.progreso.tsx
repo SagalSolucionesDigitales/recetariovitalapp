@@ -6,6 +6,7 @@ import { Check, Loader2, Download } from "lucide-react";
 import { getRecentCheckins, saveCheckin } from "@/lib/checkin.functions";
 import { getMyProfile } from "@/lib/profile.functions";
 import { toast } from "sonner";
+import { condicionLabel, indicadorTexto } from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/progreso")({
   head: () => ({ meta: [{ title: "Progreso — Recetario Vital" }] }),
@@ -51,7 +52,8 @@ function ProgresoPage() {
       y += 16; doc.text("Historial médico — bienestar y adherencia al plan", left, y);
       y += 22; doc.setTextColor(0); doc.setFontSize(11);
       doc.text(`Nombre: ${profile?.nombre ?? "—"}`, left, y);
-      y += 14; doc.text(`Glucosa de referencia: ${profile?.glucosa_referencia ?? "—"}`, left, y);
+      y += 14; doc.text(`Condición de salud: ${condicionLabel(profile?.condicion_salud)}`, left, y);
+      y += 14; doc.text(indicadorTexto(profile ?? {} as never), left, y);
       y += 14; doc.text(`Fecha de exportación: ${new Date().toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}`, left, y);
 
       y += 22; doc.setDrawColor(200); doc.line(left, y, 556, y);

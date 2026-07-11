@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Recetario Vital — Recetas para prediabetes" },
-      { name: "description", content: "Come delicioso y cuida tu glucosa. Plan semanal personalizado, coach 24/7 y registro de progreso. 7 días gratis." },
+      { title: "Recetario Vital — Dieta Mediterránea adaptada a México" },
+      { name: "description", content: "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a ingredientes mexicanos. Plan semanal personalizado, coach 24/7 y registro de progreso. 7 días gratis." },
     ],
   }),
   beforeLoad: async () => {
@@ -32,12 +32,12 @@ function Splash() {
 
         <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90">
           <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.78_0.16_150)]" />
-          Para personas con prediabetes
+          Dieta Mediterránea adaptada a México
         </span>
 
         <h2 className="mt-5 font-serif text-[30px] leading-[1.15]">
           Come delicioso y{" "}
-          <em className="font-serif italic text-white/60">cuida tu glucosa</em>{" "}
+          <em className="font-serif italic text-white/60">cuida tu salud metabólica</em>{" "}
           sin sacrificar nada.
         </h2>
 
@@ -71,7 +71,7 @@ function Splash() {
             ))}
           </div>
           <p className="text-xs leading-snug text-white/70">
-            <strong className="font-medium text-white/95">+2,400 personas</strong> ya controlan su prediabetes con Recetario Vital
+            <strong className="font-medium text-white/95">+2,400 personas</strong> ya cuidan su salud metabólica con Recetario Vital
           </p>
         </div>
       </section>

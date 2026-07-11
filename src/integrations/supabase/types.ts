@@ -71,36 +71,51 @@ export type Database = {
       profiles: {
         Row: {
           actualizado_en: string
+          circunferencia_cintura: string | null
+          colesterol_nivel: string | null
+          condicion_salud: string
           creado_en: string
+          estatura_cm: number | null
           glucosa_referencia: string | null
           id: string
           nombre: string | null
           onboarding_completo: boolean
           personas: string | null
+          peso_kg: number | null
           presupuesto: string | null
           restricciones: string[] | null
           tiempo_cocina: string | null
         }
         Insert: {
           actualizado_en?: string
+          circunferencia_cintura?: string | null
+          colesterol_nivel?: string | null
+          condicion_salud?: string
           creado_en?: string
+          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
+          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
         }
         Update: {
           actualizado_en?: string
+          circunferencia_cintura?: string | null
+          colesterol_nivel?: string | null
+          condicion_salud?: string
           creado_en?: string
+          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id?: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
+          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null

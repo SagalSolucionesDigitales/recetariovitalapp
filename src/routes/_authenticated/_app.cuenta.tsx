@@ -6,6 +6,13 @@ import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2, Check } from "l
 import { getMyProfile, updateProfileBasics } from "@/lib/profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  CONDICIONES,
+  GLUCOSA_OPCIONES,
+  COLESTEROL_OPCIONES,
+  CINTURA_OPCIONES,
+  RESTRICCIONES_OPCIONES,
+} from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/cuenta")({
   head: () => ({ meta: [{ title: "Mi cuenta — Recetario Vital" }] }),
@@ -20,7 +27,12 @@ function CuentaPage() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetch() });
 
   const [nombre, setNombre] = useState("");
+  const [condicion, setCondicion] = useState<string>("");
   const [glu, setGlu] = useState<string>("");
+  const [colesterol, setColesterol] = useState<string>("");
+  const [cintura, setCintura] = useState<string>("");
+  const [pesoKg, setPesoKg] = useState<string>("");
+  const [estaturaCm, setEstaturaCm] = useState<string>("");
   const [rest, setRest] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<string>("");
   const [personas, setPersonas] = useState<string>("");
@@ -29,7 +41,12 @@ function CuentaPage() {
   useEffect(() => {
     if (profile) {
       setNombre(profile.nombre ?? "");
+      setCondicion(profile.condicion_salud ?? "prediabetes");
       setGlu(profile.glucosa_referencia ?? "");
+      setColesterol(profile.colesterol_nivel ?? "");
+      setCintura(profile.circunferencia_cintura ?? "");
+      setPesoKg(profile.peso_kg != null ? String(profile.peso_kg) : "");
+      setEstaturaCm(profile.estatura_cm != null ? String(profile.estatura_cm) : "");
       setRest(profile.restricciones ?? []);
       setTiempo(profile.tiempo_cocina ?? "");
       setPersonas(profile.personas ?? "");
@@ -40,7 +57,12 @@ function CuentaPage() {
   const mut = useMutation({
     mutationFn: () => update({ data: {
       nombre: nombre || undefined,
-      glucosa_referencia: (glu || undefined) as never,
+      condicion_salud: (condicion || undefined) as never,
+      glucosa_referencia: (condicion === "prediabetes" ? glu || null : null) as never,
+      colesterol_nivel: (condicion === "cardiovascular" ? colesterol || null : null) as never,
+      circunferencia_cintura: (condicion === "sindrome_metabolico" ? cintura || null : null) as never,
+      peso_kg: (condicion === "control_peso" && pesoKg ? Number(pesoKg) : null) as never,
+      estatura_cm: (condicion === "control_peso" && estaturaCm ? Number(estaturaCm) : null) as never,
       restricciones: rest,
       tiempo_cocina: (tiempo || undefined) as never,
       personas: (personas || undefined) as never,
@@ -91,11 +113,38 @@ function CuentaPage() {
         <section>
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Perfil de salud</p>
           <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-            <Select label="Nivel de glucosa" value={glu} onChange={setGlu} options={[
-              ["100-110", "100–110 mg/dL"],
-              ["111-125", "111–125 mg/dL"],
-              ["no-se", "No lo sé exactamente"],
-            ]} />
+            <Select label="Condición de salud principal" value={condicion} onChange={setCondicion} options={
+              CONDICIONES.map(c => [c.id, c.label] as [string, string])
+            } />
+            {condicion === "prediabetes" && (
+              <Select label="Nivel de glucosa" value={glu} onChange={setGlu} options={
+                GLUCOSA_OPCIONES.map(o => [o.id, o.label] as [string, string])
+              } />
+            )}
+            {condicion === "cardiovascular" && (
+              <Select label="Colesterol total" value={colesterol} onChange={setColesterol} options={
+                COLESTEROL_OPCIONES.map(o => [o.id, o.label] as [string, string])
+              } />
+            )}
+            {condicion === "sindrome_metabolico" && (
+              <Select label="Circunferencia de cintura" value={cintura} onChange={setCintura} options={
+                CINTURA_OPCIONES.map(o => [o.id, o.label] as [string, string])
+              } />
+            )}
+            {condicion === "control_peso" && (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label>Peso (kg)</Label>
+                  <input type="number" value={pesoKg} onChange={(e) => setPesoKg(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40" />
+                </div>
+                <div className="space-y-1">
+                  <Label>Estatura (cm)</Label>
+                  <input type="number" value={estaturaCm} onChange={(e) => setEstaturaCm(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40" />
+                </div>
+              </div>
+            )}
             <MultiCheck label="Restricciones alimentarias" value={rest} onChange={setRest} />
             <Select label="Tiempo de cocina" value={tiempo} onChange={setTiempo} options={[
               ["menos15", "Menos de 15 min"],
@@ -164,19 +213,11 @@ function Select({ label, value, onChange, options }: { label: string; value: str
 }
 
 function MultiCheck({ label, value, onChange }: { label: string; value: string[]; onChange: (v: string[]) => void }) {
-  const options = [
-    ["gluten", "🌾 Gluten"],
-    ["lacteos", "🥛 Lácteos"],
-    ["mariscos", "🦐 Mariscos"],
-    ["cerdo", "🥩 Cerdo"],
-    ["picante", "🌶️ Picante"],
-    ["ninguno", "✅ Ninguno"],
-  ] as const;
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
       <div className="grid grid-cols-2 gap-2">
-        {options.map(([id, text]) => {
+        {RESTRICCIONES_OPCIONES.map(({ id, l: text }) => {
           const selected = value.includes(id);
           return (
             <button

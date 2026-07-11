@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Send, Info, Brain } from "lucide-react";
 import { askCamila, getConversation } from "@/lib/ai.functions";
+import { getMyProfile } from "@/lib/profile.functions";
+import { condicionLabel } from "@/lib/condiciones";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/_app/coach")({
@@ -21,9 +23,11 @@ const quick = [
 function CoachPage() {
   const qc = useQueryClient();
   const fetchConv = useServerFn(getConversation);
+  const fetchProfile = useServerFn(getMyProfile);
   const ask = useServerFn(askCamila);
 
   const { data: convo } = useQuery({ queryKey: ["conv"], queryFn: () => fetchConv() });
+  const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -50,7 +54,7 @@ function CoachPage() {
           <div className="grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-white/15 font-serif text-lg">C</div>
           <div className="flex-1">
             <p className="font-serif text-lg leading-tight">Camila</p>
-            <p className="text-[11px] text-white/65">Coach de nutrición · prediabetes</p>
+            <p className="text-[11px] text-white/65">Coach de nutrición · {condicionLabel(profile?.condicion_salud)}</p>
           </div>
           <span className="h-2 w-2 rounded-full bg-[oklch(0.78_0.16_150)]" />
         </div>

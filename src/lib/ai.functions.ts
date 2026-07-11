@@ -2,6 +2,21 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireActiveSubscription } from "./subscription.functions";
 import { z } from "zod";
+import {
+  type CondicionSalud,
+  condicionLabel,
+  indicadorTexto,
+  TIEMPO_OPCIONES,
+  PERSONAS_OPCIONES,
+  PRESUPUESTO_OPCIONES,
+} from "./condiciones";
+
+const FOCO_NUTRICIONAL: Record<CondicionSalud, string> = {
+  prediabetes: "Prioriza alimentos de índice glucémico bajo, altos en fibra y proteína, y limita los carbohidratos refinados para estabilizar la glucosa.",
+  cardiovascular: "Prioriza grasas saludables (aceite de oliva, aguacate, pescado, nueces), reduce sodio y grasas saturadas, e incluye fuentes de omega-3.",
+  sindrome_metabolico: "Prioriza el control de porciones, reduce carbohidratos refinados y azúcares añadidos, y favorece alimentos ricos en fibra que mejoren la sensibilidad a la insulina.",
+  control_peso: "Prioriza la saciedad con fibra y proteína magra, cuida la densidad calórica y el tamaño de las porciones sin sacrificar el sabor.",
+};
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
@@ -31,32 +46,24 @@ async function callAI(messages: Array<{ role: string; content: string }>, opts?:
 }
 
 function describePerfil(p: {
+  condicion_salud: string | null;
   glucosa_referencia: string | null;
+  colesterol_nivel: string | null;
+  circunferencia_cintura: string | null;
+  peso_kg: number | null;
+  estatura_cm: number | null;
   restricciones: string[] | null;
   tiempo_cocina: string | null;
   personas: string | null;
   presupuesto: string | null;
 }) {
-  const labels: Record<string, string> = {
-    "100-110": "100–110 mg/dL (prediabetes leve)",
-    "111-125": "111–125 mg/dL (prediabetes moderada)",
-    "no-se": "no conoce con exactitud",
-    menos15: "menos de 15 minutos",
-    "15-30": "entre 15 y 30 minutos",
-    mas30: "más de 30 minutos",
-    "1": "1 persona",
-    "2": "2 personas",
-    "3+": "3 o más personas",
-    menos500: "menos de $500 MXN/semana",
-    "500-1000": "$500–$1,000 MXN/semana",
-    mas1000: "más de $1,000 MXN/semana",
-  };
   return [
-    `Glucosa en ayunas: ${labels[p.glucosa_referencia ?? ""] ?? "sin dato"}`,
+    `Condición de salud principal: ${condicionLabel(p.condicion_salud)}`,
+    indicadorTexto(p),
     `Restricciones: ${(p.restricciones ?? []).filter(r => r !== "ninguno").join(", ") || "ninguna"}`,
-    `Tiempo de cocina: ${labels[p.tiempo_cocina ?? ""] ?? "sin dato"}`,
-    `Personas en casa: ${labels[p.personas ?? ""] ?? "sin dato"}`,
-    `Presupuesto: ${labels[p.presupuesto ?? ""] ?? "sin dato"}`,
+    `Tiempo de cocina: ${TIEMPO_OPCIONES.find(o => o.id === p.tiempo_cocina)?.label ?? "sin dato"}`,
+    `Personas en casa: ${PERSONAS_OPCIONES.find(o => o.id === p.personas)?.label ?? "sin dato"}`,
+    `Presupuesto: ${PRESUPUESTO_OPCIONES.find(o => o.id === p.presupuesto)?.label ?? "sin dato"}`,
   ].join(". ");
 }
 
@@ -74,7 +81,8 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
     const ctx = describePerfil(perfil);
     const checkinsTxt = (checkins ?? []).map(c => `${c.fecha}: bienestar ${c.bienestar_score}/5, plan ${c.siguio_plan}`).join("; ") || "sin registros aún";
 
-    const system = `Eres Camila, coach de nutrición especializada en prediabetes para usuarios latinoamericanos (México). Generas planes semanales de comidas con índice glucémico bajo, alto en fibra y proteína. Respondes SIEMPRE en español neutro con tuteo (tú, te, tu) — nunca uses voseo. Devuelves EXCLUSIVAMENTE un objeto JSON válido con esta estructura exacta: { "semana": "string", "dias": [{ "dia": "Lunes"|"Martes"|"Miércoles"|"Jueves"|"Viernes"|"Sábado"|"Domingo", "desayuno": Comida, "almuerzo": Comida, "cena": Comida }] } donde Comida = { "nombre": string, "por_que_es_buena": string (1-2 oraciones, enfocadas en prediabetes), "ingredientes": string[], "pasos": string[], "ig_nivel": "Bajo"|"Medio", "costo_usd": number }. Genera EXACTAMENTE 7 días × 3 comidas = 21 comidas. Usa ingredientes mexicanos accesibles. NO incluyas explicaciones fuera del JSON.`;
+    const condicion = (perfil.condicion_salud ?? "prediabetes") as CondicionSalud;
+    const system = `Eres Camila, coach de nutrición especializada en la Dieta Mediterránea adaptada con ingredientes mexicanos, para usuarios de México con ${condicionLabel(condicion)}. La Dieta Mediterránea (aceite de oliva, vegetales, legumbres, pescado, granos integrales, frutos secos) está científicamente validada para diabetes tipo 2, enfermedades cardiovasculares, síndrome metabólico y control de peso; adáptala con ingredientes mexicanos accesibles (nopal, aguacate, frijol, jitomate, chile, pescado, aceite de oliva o de canola). ${FOCO_NUTRICIONAL[condicion]} Respondes SIEMPRE en español neutro con tuteo (tú, te, tu) — nunca uses voseo. Devuelves EXCLUSIVAMENTE un objeto JSON válido con esta estructura exacta: { "semana": "string", "dias": [{ "dia": "Lunes"|"Martes"|"Miércoles"|"Jueves"|"Viernes"|"Sábado"|"Domingo", "desayuno": Comida, "almuerzo": Comida, "cena": Comida }] } donde Comida = { "nombre": string, "por_que_es_buena": string (1-2 oraciones, enfocadas en ${condicionLabel(condicion)}), "ingredientes": string[], "pasos": string[], "ig_nivel": "Bajo"|"Medio", "costo_usd": number }. Genera EXACTAMENTE 7 días × 3 comidas = 21 comidas. NO incluyas explicaciones fuera del JSON.`;
 
     const user = `Perfil: ${ctx}. Últimos check-ins: ${checkinsTxt}. Genera un plan semanal personalizado.`;
 
@@ -125,7 +133,8 @@ export const askCamila = createServerFn({ method: "POST" })
     const ctx = perfil ? describePerfil(perfil) : "sin perfil";
     const checkinsTxt = (checkins ?? []).map(c => `${c.fecha}: bienestar ${c.bienestar_score}/5`).join("; ") || "sin registros";
 
-    const system = `Eres Camila, coach de nutrición especializada en prediabetes para usuarios mexicanos. Respondes en español neutro con tuteo (tú, te, tu) — NUNCA voseo. Tono cercano, empático, sin condescendencia. NO diagnosticas ni prescribes medicamentos. Cuando sea relevante menciona el índice glucémico. Limita tus respuestas a 3–4 oraciones. Contexto del usuario — ${ctx}. Check-ins recientes — ${checkinsTxt}.`;
+    const condicion = (perfil?.condicion_salud ?? "prediabetes") as CondicionSalud;
+    const system = `Eres Camila, coach de nutrición especializada en la Dieta Mediterránea adaptada con ingredientes mexicanos, para usuarios de México con ${condicionLabel(condicion)}. ${FOCO_NUTRICIONAL[condicion]} Respondes en español neutro con tuteo (tú, te, tu) — NUNCA voseo. Tono cercano, empático, sin condescendencia. NO diagnosticas ni prescribes medicamentos. Limita tus respuestas a 3–4 oraciones. Contexto del usuario — ${ctx}. Check-ins recientes — ${checkinsTxt}.`;
 
     const historyMsgs = (history ?? []).reverse().flatMap(h => ([
       { role: "user", content: h.mensaje },
