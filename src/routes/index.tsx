@@ -32,7 +32,7 @@ function Splash() {
 
         <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90">
           <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.78_0.16_150)]" />
-          Dieta Mediterránea adaptada a México
+          Una dieta saludable, práctica y personalizada para ti
         </span>
 
         <h2 className="mt-5 font-serif text-[30px] leading-[1.15]">
