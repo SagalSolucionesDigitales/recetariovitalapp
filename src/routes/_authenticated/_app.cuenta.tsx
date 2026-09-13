@@ -55,20 +55,30 @@ function CuentaPage() {
   }, [profile]);
 
   const mut = useMutation({
-    mutationFn: () => update({ data: {
-      nombre: nombre || undefined,
-      condicion_salud: (condicion || undefined) as never,
-      glucosa_referencia: (condicion === "prediabetes" ? glu || null : null) as never,
-      colesterol_nivel: (condicion === "cardiovascular" ? colesterol || null : null) as never,
-      circunferencia_cintura: (condicion === "sindrome_metabolico" ? cintura || null : null) as never,
-      peso_kg: (condicion === "control_peso" && pesoKg ? Number(pesoKg) : null) as never,
-      estatura_cm: (condicion === "control_peso" && estaturaCm ? Number(estaturaCm) : null) as never,
-      restricciones: rest,
-      tiempo_cocina: (tiempo || undefined) as never,
-      personas: (personas || undefined) as never,
-      presupuesto: (presup || undefined) as never,
-    } }),
-    onSuccess: () => { toast.success("Cambios guardados"); qc.invalidateQueries({ queryKey: ["profile"] }); },
+    mutationFn: () =>
+      update({
+        data: {
+          nombre: nombre || undefined,
+          condicion_salud: (condicion || undefined) as never,
+          glucosa_referencia: (condicion === "prediabetes" ? glu || null : null) as never,
+          colesterol_nivel: (condicion === "cardiovascular" ? colesterol || null : null) as never,
+          circunferencia_cintura: (condicion === "sindrome_metabolico"
+            ? cintura || null
+            : null) as never,
+          peso_kg: (condicion === "control_peso" && pesoKg ? Number(pesoKg) : null) as never,
+          estatura_cm: (condicion === "control_peso" && estaturaCm
+            ? Number(estaturaCm)
+            : null) as never,
+          restricciones: rest,
+          tiempo_cocina: (tiempo || undefined) as never,
+          personas: (personas || undefined) as never,
+          presupuesto: (presup || undefined) as never,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Cambios guardados");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
 
@@ -85,7 +95,10 @@ function CuentaPage() {
     <>
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
-          <Link to="/dashboard" className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card">
+          <Link
+            to="/dashboard"
+            className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <h1 className="font-serif text-lg">Mi cuenta</h1>
@@ -102,65 +115,107 @@ function CuentaPage() {
         </section>
 
         <section>
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Datos personales</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Datos personales
+          </p>
           <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
             <Label>Nombre</Label>
-            <input value={nombre} onChange={(e) => setNombre(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40" />
+            <input
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+            />
           </div>
         </section>
 
         <section>
-          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Perfil de salud</p>
+          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Perfil de salud
+          </p>
           <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
-            <Select label="Condición de salud principal" value={condicion} onChange={setCondicion} options={
-              CONDICIONES.map(c => [c.id, c.label] as [string, string])
-            } />
+            <Select
+              label="Condición de salud principal"
+              value={condicion}
+              onChange={setCondicion}
+              options={CONDICIONES.map((c) => [c.id, c.label] as [string, string])}
+            />
             {condicion === "prediabetes" && (
-              <Select label="Nivel de glucosa" value={glu} onChange={setGlu} options={
-                GLUCOSA_OPCIONES.map(o => [o.id, o.label] as [string, string])
-              } />
+              <Select
+                label="Nivel de glucosa"
+                value={glu}
+                onChange={setGlu}
+                options={GLUCOSA_OPCIONES.map((o) => [o.id, o.label] as [string, string])}
+              />
             )}
             {condicion === "cardiovascular" && (
-              <Select label="Colesterol total" value={colesterol} onChange={setColesterol} options={
-                COLESTEROL_OPCIONES.map(o => [o.id, o.label] as [string, string])
-              } />
+              <Select
+                label="Colesterol total"
+                value={colesterol}
+                onChange={setColesterol}
+                options={COLESTEROL_OPCIONES.map((o) => [o.id, o.label] as [string, string])}
+              />
             )}
             {condicion === "sindrome_metabolico" && (
-              <Select label="Circunferencia de cintura" value={cintura} onChange={setCintura} options={
-                CINTURA_OPCIONES.map(o => [o.id, o.label] as [string, string])
-              } />
+              <Select
+                label="Circunferencia de cintura"
+                value={cintura}
+                onChange={setCintura}
+                options={CINTURA_OPCIONES.map((o) => [o.id, o.label] as [string, string])}
+              />
             )}
             {condicion === "control_peso" && (
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label>Peso (kg)</Label>
-                  <input type="number" value={pesoKg} onChange={(e) => setPesoKg(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40" />
+                  <input
+                    type="number"
+                    value={pesoKg}
+                    onChange={(e) => setPesoKg(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+                  />
                 </div>
                 <div className="space-y-1">
                   <Label>Estatura (cm)</Label>
-                  <input type="number" value={estaturaCm} onChange={(e) => setEstaturaCm(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40" />
+                  <input
+                    type="number"
+                    value={estaturaCm}
+                    onChange={(e) => setEstaturaCm(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+                  />
                 </div>
               </div>
             )}
             <MultiCheck label="Restricciones alimentarias" value={rest} onChange={setRest} />
-            <Select label="Tiempo de cocina" value={tiempo} onChange={setTiempo} options={[
-              ["menos15", "Menos de 15 min"],
-              ["15-30", "15–30 min"],
-              ["mas30", "Más de 30 min"],
-            ]} />
-            <Select label="Personas en casa" value={personas} onChange={setPersonas} options={[
-              ["1", "Solo para mí"],
-              ["2", "Para 2 personas"],
-              ["3+", "Para 3 o más"],
-            ]} />
-            <Select label="Presupuesto semanal" value={presup} onChange={setPresup} options={[
-              ["menos500", "Menos de $500 MXN"],
-              ["500-1000", "$500–$1,000 MXN"],
-              ["mas1000", "Más de $1,000 MXN"],
-            ]} />
+            <Select
+              label="Tiempo de cocina"
+              value={tiempo}
+              onChange={setTiempo}
+              options={[
+                ["menos15", "Menos de 15 min"],
+                ["15-30", "15–30 min"],
+                ["mas30", "Más de 30 min"],
+              ]}
+            />
+            <Select
+              label="Personas en casa"
+              value={personas}
+              onChange={setPersonas}
+              options={[
+                ["1", "Solo para mí"],
+                ["2", "Para 2 personas"],
+                ["3+", "Para 3 o más"],
+              ]}
+            />
+            <Select
+              label="Presupuesto semanal"
+              value={presup}
+              onChange={setPresup}
+              options={[
+                ["menos500", "Menos de $500 MXN"],
+                ["500-1000", "$500–$1,000 MXN"],
+                ["mas1000", "Más de $1,000 MXN"],
+              ]}
+            />
           </div>
         </section>
 
@@ -175,7 +230,7 @@ function CuentaPage() {
         <section>
           <div className="space-y-1 rounded-2xl border border-border bg-card p-2">
             <Link to="/suscripcion" className="block">
-              <Row icon={CreditCard} label="Suscripción" sub="Período de prueba — 7 días gratis" />
+              <Row icon={CreditCard} label="Mi compra" sub="Acceso de por vida — pago único" />
             </Link>
             <Link to="/ajustes" className="block">
               <Row icon={Settings} label="Ajustes" sub="Notificaciones, idioma, privacidad" />
@@ -196,23 +251,52 @@ function CuentaPage() {
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{children}</label>;
+  return (
+    <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      {children}
+    </label>
+  );
 }
 
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: Array<[string, string]> }) {
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: Array<[string, string]>;
+}) {
   return (
     <div className="space-y-1">
       <Label>{label}</Label>
-      <select value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+      >
         <option value="">Selecciona…</option>
-        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
       </select>
     </div>
   );
 }
 
-function MultiCheck({ label, value, onChange }: { label: string; value: string[]; onChange: (v: string[]) => void }) {
+function MultiCheck({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -225,7 +309,12 @@ function MultiCheck({ label, value, onChange }: { label: string; value: string[]
               type="button"
               onClick={() => {
                 if (id === "ninguno") onChange(selected ? [] : ["ninguno"]);
-                else onChange(selected ? value.filter(x => x !== id) : [...value.filter(x => x !== "ninguno"), id]);
+                else
+                  onChange(
+                    selected
+                      ? value.filter((x) => x !== id)
+                      : [...value.filter((x) => x !== "ninguno"), id],
+                  );
               }}
               className={`flex min-h-11 items-center justify-between rounded-lg border px-3 py-2 text-left text-sm ${selected ? "border-primary bg-primary-soft" : "border-border bg-background"}`}
             >

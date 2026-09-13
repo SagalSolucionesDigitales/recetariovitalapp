@@ -68,6 +68,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hotmart_purchases: {
+        Row: {
+          actualizado_en: string
+          creado_en: string
+          email: string
+          hotmart_transaction: string
+          id: string
+          payload: Json | null
+          product_id: string | null
+          purchased_at: string | null
+          status: string
+        }
+        Insert: {
+          actualizado_en?: string
+          creado_en?: string
+          email: string
+          hotmart_transaction: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          purchased_at?: string | null
+          status: string
+        }
+        Update: {
+          actualizado_en?: string
+          creado_en?: string
+          email?: string
+          hotmart_transaction?: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          purchased_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           actualizado_en: string
@@ -122,39 +158,6 @@ export type Database = {
         }
         Relationships: []
       }
-      subscriptions: {
-        Row: {
-          creado_en: string
-          current_period_end: string | null
-          id: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          trial_end: string | null
-          user_id: string
-        }
-        Insert: {
-          creado_en?: string
-          current_period_end?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_end?: string | null
-          user_id: string
-        }
-        Update: {
-          creado_en?: string
-          current_period_end?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_end?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       weekly_plans: {
         Row: {
           generado_en: string
@@ -184,7 +187,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_hotmart_access: {
+        Args: { p_email: string }
+        Returns: boolean
+      }
+      has_hotmart_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

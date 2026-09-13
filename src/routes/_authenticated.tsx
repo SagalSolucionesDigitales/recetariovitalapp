@@ -14,6 +14,10 @@ export const Route = createFileRoute("/_authenticated")({
       await supabase.auth.signOut().catch(() => {});
       throw redirect({ to: "/login" });
     }
+    const { data: hasAccess, error: accessErr } = await supabase.rpc("has_hotmart_access");
+    if (accessErr || !hasAccess) {
+      throw redirect({ to: "/sin-acceso" });
+    }
   },
   component: () => <Outlet />,
 });

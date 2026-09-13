@@ -22,8 +22,6 @@ function passwordStrength(pw: string): 0 | 1 | 2 | 3 {
   return Math.min(s, 3) as 0 | 1 | 2 | 3;
 }
 
-
-
 function SignupPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -46,7 +44,19 @@ function SignupPage() {
     if (!valid) return;
     setLoading(true);
     const normalizedEmail = email.trim().toLowerCase();
-    const { data: signUpData, error } = await supabase.auth.signUp({
+
+    const { data: eligible, error: eligibilityError } = await supabase.rpc("check_hotmart_access", {
+      p_email: normalizedEmail,
+    });
+    if (eligibilityError || !eligible) {
+      setLoading(false);
+      toast.error(
+        "No encontramos una compra aprobada en Hotmart con este correo. Usa el mismo correo de tu compra o contacta soporte.",
+      );
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password: pw,
       options: {
@@ -64,14 +74,6 @@ function SignupPage() {
     setSuccess(true);
   }
 
-  async function googleSignup() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin + "/dashboard" },
-    });
-    if (error) toast.error("No pudimos iniciar sesión con Google.");
-  }
-
   if (success) {
     return (
       <div className="app-shell flex min-h-screen flex-col items-center justify-center bg-primary px-6 text-center text-white">
@@ -80,7 +82,8 @@ function SignupPage() {
         </div>
         <h1 className="mt-6 font-serif text-[32px] leading-tight">¡Revisa tu correo!</h1>
         <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-white/85">
-          Te enviamos un correo a <span className="font-medium text-white">{email}</span> para confirmar tu cuenta. Haz clic en el enlace del correo y luego inicia sesión para empezar.
+          Te enviamos un correo a <span className="font-medium text-white">{email}</span> para
+          confirmar tu cuenta. Haz clic en el enlace del correo y luego inicia sesión para empezar.
         </p>
         <p className="mt-4 max-w-xs text-xs text-white/65">
           ¿No lo ves? Revisa tu carpeta de spam.
@@ -98,7 +101,10 @@ function SignupPage() {
   return (
     <div className="app-shell min-h-screen">
       <header className="flex items-center justify-between px-5 pt-5">
-        <Link to="/" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card">
+        <Link
+          to="/"
+          className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card"
+        >
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <span className="text-sm font-medium text-muted-foreground">Crear cuenta</span>
@@ -106,24 +112,12 @@ function SignupPage() {
       </header>
 
       <main className="px-6 pb-12 pt-6">
-        <h1 className="font-serif text-[27px] leading-tight">Crea tu cuenta gratuita</h1>
-        <p className="mt-2 text-sm text-muted-foreground">7 días con acceso completo. Sin tarjeta de crédito.</p>
+        <h1 className="font-serif text-[27px] leading-tight">Crea tu cuenta</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Usa el mismo correo con el que compraste en Hotmart — es como verificamos tu acceso.
+        </p>
 
-        <button
-          onClick={googleSignup}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium transition-colors hover:bg-primary-soft"
-        >
-          <GoogleIcon />
-          Continuar con Google
-        </button>
-
-        <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          o usa tu correo
-          <span className="h-px flex-1 bg-border" />
-        </div>
-
-        <form onSubmit={signupEmail} className="space-y-3">
+        <form onSubmit={signupEmail} className="mt-6 space-y-3">
           <Field icon={<Mail className="h-4 w-4" />}>
             <input
               type="email"
@@ -136,11 +130,18 @@ function SignupPage() {
           </Field>
 
           <div>
-            <Field icon={<Lock className="h-4 w-4" />} trailing={
-              <button type="button" onClick={() => setShowPw(s => !s)} className="text-muted-foreground">
-                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            }>
+            <Field
+              icon={<Lock className="h-4 w-4" />}
+              trailing={
+                <button
+                  type="button"
+                  onClick={() => setShowPw((s) => !s)}
+                  className="text-muted-foreground"
+                >
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              }
+            >
               <input
                 type={showPw ? "text" : "password"}
                 required
@@ -151,8 +152,11 @@ function SignupPage() {
               />
             </Field>
             <div className="mt-2 flex gap-1.5">
-              {[1, 2, 3].map(i => (
-                <div key={i} className={`h-1 flex-1 rounded-full ${strength >= i ? (strength === 1 ? "bg-destructive" : strength === 2 ? "bg-accent" : "bg-primary") : "bg-border"}`} />
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full ${strength >= i ? (strength === 1 ? "bg-destructive" : strength === 2 ? "bg-accent" : "bg-primary") : "bg-border"}`}
+                />
               ))}
             </div>
           </div>
@@ -176,7 +180,15 @@ function SignupPage() {
               className="mt-0.5 h-4 w-4 accent-primary"
             />
             <span>
-              Acepto los <a className="font-medium text-primary underline-offset-2 hover:underline">Términos de uso</a> y la <a className="font-medium text-primary underline-offset-2 hover:underline">Política de privacidad</a>. Entiendo que Recetario Vital no reemplaza la consulta médica.
+              Acepto los{" "}
+              <a className="font-medium text-primary underline-offset-2 hover:underline">
+                Términos de uso
+              </a>{" "}
+              y la{" "}
+              <a className="font-medium text-primary underline-offset-2 hover:underline">
+                Política de privacidad
+              </a>
+              . Entiendo que Recetario Vital no reemplaza la consulta médica.
             </span>
           </label>
 
@@ -185,41 +197,40 @@ function SignupPage() {
             disabled={!valid || loading}
             className="mt-2 w-full rounded-xl bg-primary px-5 py-3.5 text-sm font-medium text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? "Creando cuenta…" : "Crear cuenta gratis"}
+            {loading ? "Creando cuenta…" : "Crear cuenta"}
           </button>
         </form>
 
         <p className="mt-6 flex items-start gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
-          Después del período de prueba, $9.99 USD/mes. Cancela cuando quieras.
+          Acceso completo con tu compra única — sin pagos recurrentes.
         </p>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="font-medium text-primary hover:underline">Inicia sesión</Link>
+          <Link to="/login" className="font-medium text-primary hover:underline">
+            Inicia sesión
+          </Link>
         </p>
       </main>
     </div>
   );
 }
 
-function Field({ icon, trailing, children }: { icon: React.ReactNode; trailing?: React.ReactNode; children: React.ReactNode }) {
+function Field({
+  icon,
+  trailing,
+  children,
+}: {
+  icon: React.ReactNode;
+  trailing?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-3.5 py-3 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-ring/30">
       <span className="text-muted-foreground">{icon}</span>
       <div className="flex-1">{children}</div>
       {trailing}
     </div>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.3 29.1 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5c10.8 0 19.5-8.7 19.5-19.5 0-1.2-.1-2.3-.4-3.5z"/>
-      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.6 6.3 29.1 4.5 24 4.5 16.1 4.5 9.3 9 6.3 14.7z"/>
-      <path fill="#4CAF50" d="M24 43.5c5 0 9.5-1.7 13-4.6l-6-5.1c-2 1.4-4.4 2.2-7 2.2-5.3 0-9.7-3.1-11.3-7.4l-6.5 5C8.9 39 15.9 43.5 24 43.5z"/>
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6 5.1C40.7 35.6 43.5 30.3 43.5 24c0-1.2-.1-2.3-.4-3.5z"/>
-    </svg>
   );
 }

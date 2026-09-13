@@ -6,7 +6,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Recetario Vital — Dieta Mediterránea adaptada a México" },
-      { name: "description", content: "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a ingredientes mexicanos. Plan semanal personalizado, coach 24/7 y registro de progreso. 7 días gratis." },
+      {
+        name: "description",
+        content:
+          "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a ingredientes mexicanos. Plan semanal personalizado, coach 24/7 y registro de progreso. Pago único.",
+      },
     ],
   }),
   beforeLoad: async () => {
@@ -37,12 +41,15 @@ function Splash() {
 
         <h2 className="mt-5 font-serif text-[30px] leading-[1.15]">
           Come delicioso y{" "}
-          <em className="font-serif italic text-white/60">cuida tu salud metabólica</em>{" "}
-          sin sacrificar nada.
+          <em className="font-serif italic text-white/60">cuida tu salud metabólica</em> sin
+          sacrificar nada.
         </h2>
 
         <p className="mt-4 text-sm leading-relaxed text-white/65">
-          Recetas diseñadas <strong className="font-medium text-white/90">exactamente para tu condición</strong>, adaptadas a tus ingredientes y presupuesto. Disfruta el placer de comer mientras cuidas tu salud.
+          Recetas diseñadas{" "}
+          <strong className="font-medium text-white/90">exactamente para tu condición</strong>,
+          adaptadas a tus ingredientes y presupuesto. Disfruta el placer de comer mientras cuidas tu
+          salud.
         </p>
 
         <ul className="mt-7 space-y-3">
@@ -67,11 +74,14 @@ function Splash() {
                 key={i}
                 className="grid h-8 w-8 place-items-center rounded-full border-2 border-primary bg-white text-[11px] font-medium text-primary"
                 style={{ zIndex: 10 - idx }}
-              >{i}</span>
+              >
+                {i}
+              </span>
             ))}
           </div>
           <p className="text-xs leading-snug text-white/70">
-            <strong className="font-medium text-white/95">+2,400 personas</strong> ya cuidan su salud metabólica con Recetario Vital
+            <strong className="font-medium text-white/95">+2,400 personas</strong> ya cuidan su
+            salud metabólica con Recetario Vital
           </p>
         </div>
       </section>
@@ -83,11 +93,11 @@ function Splash() {
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-4 text-base font-medium text-accent-foreground shadow-sm transition-opacity hover:opacity-95"
         >
           <Sparkles className="h-5 w-5" />
-          Empieza gratis — 7 días sin costo
+          Crear cuenta
         </Link>
         <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
           <CreditCard className="h-3.5 w-3.5" />
-          Sin tarjeta de crédito para iniciar
+          Usa el correo con el que compraste en Hotmart
         </p>
         <p className="mt-5 text-center text-sm text-muted-foreground">
           ¿Ya tienes cuenta?{" "}

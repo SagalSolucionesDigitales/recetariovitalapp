@@ -9,13 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SinAccesoRouteImport } from './routes/sin-acceso'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
-import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
+import { Route as ApiPublicHotmartWebhookRouteImport } from './routes/api/public/hotmart-webhook'
 import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
 import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
@@ -25,6 +26,11 @@ import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/_app.coach'
 import { Route as AuthenticatedAppAjustesRouteImport } from './routes/_authenticated/_app.ajustes'
 
+const SinAccesoRoute = SinAccesoRouteImport.update({
+  id: '/sin-acceso',
+  path: '/sin-acceso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -53,9 +59,9 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/_app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
-  id: '/api/public/stripe-webhook',
-  path: '/api/public/stripe-webhook',
+const ApiPublicHotmartWebhookRoute = ApiPublicHotmartWebhookRouteImport.update({
+  id: '/api/public/hotmart-webhook',
+  path: '/api/public/hotmart-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppSuscripcionRoute =
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sin-acceso': typeof SinAccesoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/coach': typeof AuthenticatedAppCoachRoute
@@ -115,12 +122,13 @@ export interface FileRoutesByFullPath {
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sin-acceso': typeof SinAccesoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/coach': typeof AuthenticatedAppCoachRoute
@@ -130,7 +138,7 @@ export interface FileRoutesByTo {
   '/plan': typeof AuthenticatedAppPlanRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -138,6 +146,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/sin-acceso': typeof SinAccesoRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/_app/ajustes': typeof AuthenticatedAppAjustesRoute
@@ -148,7 +157,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/plan': typeof AuthenticatedAppPlanRoute
   '/_authenticated/_app/progreso': typeof AuthenticatedAppProgresoRoute
   '/_authenticated/_app/suscripcion': typeof AuthenticatedAppSuscripcionRoute
-  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,6 +165,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/signup'
+    | '/sin-acceso'
     | '/onboarding'
     | '/ajustes'
     | '/coach'
@@ -165,12 +175,13 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progreso'
     | '/suscripcion'
-    | '/api/public/stripe-webhook'
+    | '/api/public/hotmart-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/signup'
+    | '/sin-acceso'
     | '/onboarding'
     | '/ajustes'
     | '/coach'
@@ -180,13 +191,14 @@ export interface FileRouteTypes {
     | '/plan'
     | '/progreso'
     | '/suscripcion'
-    | '/api/public/stripe-webhook'
+    | '/api/public/hotmart-webhook'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/signup'
+    | '/sin-acceso'
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
     | '/_authenticated/_app/ajustes'
@@ -197,7 +209,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/plan'
     | '/_authenticated/_app/progreso'
     | '/_authenticated/_app/suscripcion'
-    | '/api/public/stripe-webhook'
+    | '/api/public/hotmart-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -205,11 +217,19 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
+  SinAccesoRoute: typeof SinAccesoRoute
+  ApiPublicHotmartWebhookRoute: typeof ApiPublicHotmartWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sin-acceso': {
+      id: '/sin-acceso'
+      path: '/sin-acceso'
+      fullPath: '/sin-acceso'
+      preLoaderRoute: typeof SinAccesoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -252,11 +272,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/stripe-webhook': {
-      id: '/api/public/stripe-webhook'
-      path: '/api/public/stripe-webhook'
-      fullPath: '/api/public/stripe-webhook'
-      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+    '/api/public/hotmart-webhook': {
+      id: '/api/public/hotmart-webhook'
+      path: '/api/public/hotmart-webhook'
+      fullPath: '/api/public/hotmart-webhook'
+      preLoaderRoute: typeof ApiPublicHotmartWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app/suscripcion': {
@@ -362,7 +382,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
+  SinAccesoRoute: SinAccesoRoute,
+  ApiPublicHotmartWebhookRoute: ApiPublicHotmartWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

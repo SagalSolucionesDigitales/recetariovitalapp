@@ -52,7 +52,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:opacity-90"
           >
             Reintentar
@@ -75,15 +78,41 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica" },
-      { name: "description", content: "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Prueba 7 días gratis." },
+      {
+        name: "description",
+        content:
+          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+      },
       { name: "theme-color", content: "#1B5233" },
-      { property: "og:title", content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica" },
-      { property: "og:description", content: "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Prueba 7 días gratis." },
+      {
+        property: "og:title",
+        content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica",
+      },
+      {
+        property: "og:description",
+        content:
+          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+      },
       { property: "og:type", content: "website" },
-      { name: "twitter:title", content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica" },
-      { name: "twitter:description", content: "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Prueba 7 días gratis." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png" },
+      {
+        name: "twitter:title",
+        content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png",
+      },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
@@ -112,7 +141,9 @@ function AuthSync() {
   const router = useRouter();
   const queryClient = useQueryClient();
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT") {
         await queryClient.cancelQueries();
         queryClient.clear();
