@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_admins: {
+        Row: {
+          creado_en: string
+          email: string
+        }
+        Insert: {
+          creado_en?: string
+          email: string
+        }
+        Update: {
+          creado_en?: string
+          email?: string
+        }
+        Relationships: []
+      }
       check_ins: {
         Row: {
           bienestar_score: number | null

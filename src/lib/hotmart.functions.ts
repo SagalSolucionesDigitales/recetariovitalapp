@@ -22,19 +22,19 @@ export function statusForHotmartEvent(event: string): string | null {
   return HOTMART_EVENT_STATUS[event] ?? null;
 }
 
-/** Server-only helper. Throws if the given email has no approved Hotmart purchase. */
+/**
+ * Server-only helper. Throws unless the given email has an approved Hotmart
+ * purchase or is an admin (see `check_hotmart_access` in supabase/migrations,
+ * the single source of truth for both signup eligibility and this gate).
+ */
 export async function requireHotmartAccess(email: string | null | undefined) {
   if (!email) throw new Error("No se pudo verificar tu compra en Hotmart.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("hotmart_purchases")
-    .select("id")
-    .eq("email", normalizeEmail(email))
-    .eq("status", "approved")
-    .limit(1)
-    .maybeSingle();
+  const { data, error } = await supabaseAdmin.rpc("check_hotmart_access", {
+    p_email: normalizeEmail(email),
+  });
   if (error) {
-    console.error("[hotmart.requireHotmartAccess] query error", error);
+    console.error("[hotmart.requireHotmartAccess] rpc error", error);
     throw new Error("No se pudo verificar tu compra en Hotmart.");
   }
   if (!data) {
