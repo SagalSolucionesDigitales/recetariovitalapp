@@ -19,7 +19,14 @@ export const Route = createFileRoute("/api/public/hotmart-webhook")({
         }
 
         if (body.hottok !== expectedHottok) {
-          console.warn("[hotmart-webhook] Invalid hottok");
+          const received = typeof body.hottok === "string" ? body.hottok : "";
+          // TEMP diagnostic: lengths/suffixes only, never the full secret.
+          console.warn("[hotmart-webhook] Invalid hottok", {
+            expectedLength: expectedHottok.length,
+            expectedSuffix: expectedHottok.slice(-4),
+            receivedLength: received.length,
+            receivedSuffix: received.slice(-4),
+          });
           return new Response("Unauthorized", { status: 401 });
         }
 
