@@ -11,21 +11,29 @@ export const Route = createFileRoute("/api/public/hotmart-webhook")({
           return new Response("Missing webhook config", { status: 400 });
         }
 
+        const headerNames = [...request.headers.keys()];
+
         let body: Record<string, unknown>;
         try {
           body = await request.json();
         } catch {
+          console.warn("[hotmart-webhook] Invalid JSON body", { headerNames });
           return new Response("Invalid JSON", { status: 400 });
         }
 
         if (body.hottok !== expectedHottok) {
           const received = typeof body.hottok === "string" ? body.hottok : "";
-          // TEMP diagnostic: lengths/suffixes only, never the full secret.
+          const dataKeys =
+            body.data && typeof body.data === "object" ? Object.keys(body.data as object) : undefined;
+          // TEMP diagnostic: shapes/lengths only, never the full secret.
           console.warn("[hotmart-webhook] Invalid hottok", {
             expectedLength: expectedHottok.length,
             expectedSuffix: expectedHottok.slice(-4),
             receivedLength: received.length,
             receivedSuffix: received.slice(-4),
+            bodyKeys: Object.keys(body),
+            dataKeys,
+            headerNames,
           });
           return new Response("Unauthorized", { status: 401 });
         }
