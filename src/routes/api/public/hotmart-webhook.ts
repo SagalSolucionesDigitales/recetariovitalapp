@@ -11,31 +11,18 @@ export const Route = createFileRoute("/api/public/hotmart-webhook")({
           return new Response("Missing webhook config", { status: 400 });
         }
 
-        const headerNames = [...request.headers.keys()];
+        // Hotmart sends the security token as a request header, not in the JSON body.
+        const receivedHottok = request.headers.get("x-hotmart-hottok");
+        if (receivedHottok !== expectedHottok) {
+          console.warn("[hotmart-webhook] Invalid hottok");
+          return new Response("Unauthorized", { status: 401 });
+        }
 
         let body: Record<string, unknown>;
         try {
           body = await request.json();
         } catch {
-          console.warn("[hotmart-webhook] Invalid JSON body", { headerNames });
           return new Response("Invalid JSON", { status: 400 });
-        }
-
-        if (body.hottok !== expectedHottok) {
-          const received = typeof body.hottok === "string" ? body.hottok : "";
-          const dataKeys =
-            body.data && typeof body.data === "object" ? Object.keys(body.data as object) : undefined;
-          // TEMP diagnostic: shapes/lengths only, never the full secret.
-          console.warn("[hotmart-webhook] Invalid hottok", {
-            expectedLength: expectedHottok.length,
-            expectedSuffix: expectedHottok.slice(-4),
-            receivedLength: received.length,
-            receivedSuffix: received.slice(-4),
-            bodyKeys: Object.keys(body),
-            dataKeys,
-            headerNames,
-          });
-          return new Response("Unauthorized", { status: 401 });
         }
 
         const event = typeof body.event === "string" ? body.event : "";
