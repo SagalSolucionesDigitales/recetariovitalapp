@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789407204579,
+      "tag": "0000_add_profile_indicators_and_hotmart_purchases",
+      "breakpoints": true
+    }
+  ]
+}

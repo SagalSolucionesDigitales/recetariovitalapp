@@ -4,8 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Google Fonts: DM Serif Display + DM Sans */
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap");
 
 @theme inline {
   --font-serif: "DM Serif Display", ui-serif, Georgia, serif;
