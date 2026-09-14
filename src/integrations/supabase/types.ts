@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_admins: {
+        Row: {
+          creado_en: string
+          email: string
+        }
+        Insert: {
+          creado_en?: string
+          email: string
+        }
+        Update: {
+          creado_en?: string
+          email?: string
+        }
+        Relationships: []
+      }
       check_ins: {
         Row: {
           bienestar_score: number | null
@@ -155,39 +170,6 @@ export type Database = {
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
-        }
-        Relationships: []
-      }
-      subscriptions: {
-        Row: {
-          creado_en: string
-          current_period_end: string | null
-          id: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          trial_end: string | null
-          user_id: string
-        }
-        Insert: {
-          creado_en?: string
-          current_period_end?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_end?: string | null
-          user_id: string
-        }
-        Update: {
-          creado_en?: string
-          current_period_end?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          trial_end?: string | null
-          user_id?: string
         }
         Relationships: []
       }
