@@ -54,6 +54,8 @@ export type Pais =
   | "BO"
   | "PY"
   | "UY"
+  | "CU"
+  | "PR"
   | "ES";
 
 export const PAISES: Array<{ id: Pais; nombre: string }> = [
@@ -74,6 +76,8 @@ export const PAISES: Array<{ id: Pais; nombre: string }> = [
   { id: "BO", nombre: "Bolivia" },
   { id: "PY", nombre: "Paraguay" },
   { id: "UY", nombre: "Uruguay" },
+  { id: "CU", nombre: "Cuba" },
+  { id: "PR", nombre: "Puerto Rico" },
   { id: "ES", nombre: "España" },
 ];
 

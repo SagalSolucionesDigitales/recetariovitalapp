@@ -20,6 +20,8 @@ const PAIS_IDS = [
   "BO",
   "PY",
   "UY",
+  "CU",
+  "PR",
   "ES",
 ] as const;
 

@@ -77,31 +77,31 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica" },
+      { title: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica" },
       {
         name: "description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
       },
       { name: "theme-color", content: "#1B5233" },
       {
         property: "og:title",
-        content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica",
+        content: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica",
       },
       {
         property: "og:description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
       },
       { property: "og:type", content: "website" },
       {
         name: "twitter:title",
-        content: "Recetario Vital — Dieta Mediterránea mexicana para tu salud metabólica",
+        content: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica",
       },
       {
         name: "twitter:description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a México, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
       },
       {
         property: "og:image",

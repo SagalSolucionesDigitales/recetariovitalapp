@@ -5,11 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Recetario Vital — Dieta Mediterránea adaptada a México" },
+      { title: "Recetario Vital — Dieta Mediterránea para Hispanoamérica" },
       {
         name: "description",
         content:
-          "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a ingredientes mexicanos. Plan semanal personalizado, coach 24/7 y registro de progreso. Pago único.",
+          "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a los ingredientes de tu país. Plan semanal personalizado, coach 24/7 y registro de progreso. Pago único.",
       },
     ],
   }),
