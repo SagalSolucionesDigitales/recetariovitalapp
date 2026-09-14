@@ -14,21 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      app_admins: {
-        Row: {
-          creado_en: string
-          email: string
-        }
-        Insert: {
-          creado_en?: string
-          email: string
-        }
-        Update: {
-          creado_en?: string
-          email?: string
-        }
-        Relationships: []
-      }
       check_ins: {
         Row: {
           bienestar_score: number | null
@@ -83,93 +68,75 @@ export type Database = {
         }
         Relationships: []
       }
-      hotmart_purchases: {
-        Row: {
-          actualizado_en: string
-          creado_en: string
-          email: string
-          hotmart_transaction: string
-          id: string
-          payload: Json | null
-          product_id: string | null
-          purchased_at: string | null
-          status: string
-        }
-        Insert: {
-          actualizado_en?: string
-          creado_en?: string
-          email: string
-          hotmart_transaction: string
-          id?: string
-          payload?: Json | null
-          product_id?: string | null
-          purchased_at?: string | null
-          status: string
-        }
-        Update: {
-          actualizado_en?: string
-          creado_en?: string
-          email?: string
-          hotmart_transaction?: string
-          id?: string
-          payload?: Json | null
-          product_id?: string | null
-          purchased_at?: string | null
-          status?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           actualizado_en: string
-          circunferencia_cintura: string | null
-          colesterol_nivel: string | null
-          condicion_salud: string
           creado_en: string
-          estatura_cm: number | null
           glucosa_referencia: string | null
           id: string
           nombre: string | null
           onboarding_completo: boolean
           personas: string | null
-          peso_kg: number | null
           presupuesto: string | null
           restricciones: string[] | null
           tiempo_cocina: string | null
         }
         Insert: {
           actualizado_en?: string
-          circunferencia_cintura?: string | null
-          colesterol_nivel?: string | null
-          condicion_salud?: string
           creado_en?: string
-          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
-          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
         }
         Update: {
           actualizado_en?: string
-          circunferencia_cintura?: string | null
-          colesterol_nivel?: string | null
-          condicion_salud?: string
           creado_en?: string
-          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id?: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
-          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          creado_en: string
+          current_period_end: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          user_id: string
+        }
+        Insert: {
+          creado_en?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          user_id: string
+        }
+        Update: {
+          creado_en?: string
+          current_period_end?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -202,14 +169,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_hotmart_access: {
-        Args: { p_email: string }
-        Returns: boolean
-      }
-      has_hotmart_access: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
@@ -228,12 +188,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -257,11 +217,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -282,11 +242,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -307,11 +267,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -324,11 +284,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
