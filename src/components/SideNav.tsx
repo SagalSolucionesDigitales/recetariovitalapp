@@ -1,9 +1,18 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, CalendarRange, MessageCircle, LineChart, ShoppingBasket, Settings } from "lucide-react";
+import {
+  Home,
+  CalendarRange,
+  Camera,
+  MessageCircle,
+  LineChart,
+  ShoppingBasket,
+  Settings,
+} from "lucide-react";
 
 const mainItems = [
   { to: "/dashboard", label: "Inicio", icon: Home },
   { to: "/plan", label: "Mi Plan", icon: CalendarRange },
+  { to: "/plato", label: "Mi Plato", icon: Camera },
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/progreso", label: "Progreso", icon: LineChart },
   { to: "/compras", label: "Compras", icon: ShoppingBasket },

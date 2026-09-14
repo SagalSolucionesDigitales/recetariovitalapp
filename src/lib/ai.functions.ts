@@ -28,10 +28,13 @@ const FOCO_NUTRICIONAL: Record<CondicionSalud, string> = {
 const GATEWAY = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 const MODEL = "gemini-3.6-flash";
 
-async function callAI(
-  messages: Array<{ role: string; content: string }>,
-  opts?: { json?: boolean },
-) {
+export type AIContentPart =
+  | { type: "text"; text: string }
+  | { type: "image_url"; image_url: { url: string } };
+
+export type AIMessage = { role: string; content: string | AIContentPart[] };
+
+export async function callAI(messages: AIMessage[], opts?: { json?: boolean }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY no está configurado.");
   const res = await fetch(GATEWAY, {

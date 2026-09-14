@@ -19,6 +19,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_a
 import { Route as ApiPublicHotmartWebhookRouteImport } from './routes/api/public/hotmart-webhook'
 import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
 import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
+import { Route as AuthenticatedAppPlatoRouteImport } from './routes/_authenticated/_app.plato'
 import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
 import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app.dashboard'
 import { Route as AuthenticatedAppCuentaRouteImport } from './routes/_authenticated/_app.cuenta'
@@ -76,6 +77,11 @@ const AuthenticatedAppProgresoRoute =
     path: '/progreso',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppPlatoRoute = AuthenticatedAppPlatoRouteImport.update({
+  id: '/plato',
+  path: '/plato',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
   id: '/plan',
   path: '/plan',
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/cuenta': typeof AuthenticatedAppCuentaRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/plan': typeof AuthenticatedAppPlanRoute
+  '/plato': typeof AuthenticatedAppPlatoRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/cuenta': typeof AuthenticatedAppCuentaRoute
   '/dashboard': typeof AuthenticatedAppDashboardRoute
   '/plan': typeof AuthenticatedAppPlanRoute
+  '/plato': typeof AuthenticatedAppPlatoRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/cuenta': typeof AuthenticatedAppCuentaRoute
   '/_authenticated/_app/dashboard': typeof AuthenticatedAppDashboardRoute
   '/_authenticated/_app/plan': typeof AuthenticatedAppPlanRoute
+  '/_authenticated/_app/plato': typeof AuthenticatedAppPlatoRoute
   '/_authenticated/_app/progreso': typeof AuthenticatedAppProgresoRoute
   '/_authenticated/_app/suscripcion': typeof AuthenticatedAppSuscripcionRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/cuenta'
     | '/dashboard'
     | '/plan'
+    | '/plato'
     | '/progreso'
     | '/suscripcion'
     | '/api/public/hotmart-webhook'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/cuenta'
     | '/dashboard'
     | '/plan'
+    | '/plato'
     | '/progreso'
     | '/suscripcion'
     | '/api/public/hotmart-webhook'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/cuenta'
     | '/_authenticated/_app/dashboard'
     | '/_authenticated/_app/plan'
+    | '/_authenticated/_app/plato'
     | '/_authenticated/_app/progreso'
     | '/_authenticated/_app/suscripcion'
     | '/api/public/hotmart-webhook'
@@ -293,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProgresoRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/plato': {
+      id: '/_authenticated/_app/plato'
+      path: '/plato'
+      fullPath: '/plato'
+      preLoaderRoute: typeof AuthenticatedAppPlatoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/plan': {
       id: '/_authenticated/_app/plan'
       path: '/plan'
@@ -345,6 +364,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppCuentaRoute: typeof AuthenticatedAppCuentaRoute
   AuthenticatedAppDashboardRoute: typeof AuthenticatedAppDashboardRoute
   AuthenticatedAppPlanRoute: typeof AuthenticatedAppPlanRoute
+  AuthenticatedAppPlatoRoute: typeof AuthenticatedAppPlatoRoute
   AuthenticatedAppProgresoRoute: typeof AuthenticatedAppProgresoRoute
   AuthenticatedAppSuscripcionRoute: typeof AuthenticatedAppSuscripcionRoute
 }
@@ -356,6 +376,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppCuentaRoute: AuthenticatedAppCuentaRoute,
   AuthenticatedAppDashboardRoute: AuthenticatedAppDashboardRoute,
   AuthenticatedAppPlanRoute: AuthenticatedAppPlanRoute,
+  AuthenticatedAppPlatoRoute: AuthenticatedAppPlatoRoute,
   AuthenticatedAppProgresoRoute: AuthenticatedAppProgresoRoute,
   AuthenticatedAppSuscripcionRoute: AuthenticatedAppSuscripcionRoute,
 }

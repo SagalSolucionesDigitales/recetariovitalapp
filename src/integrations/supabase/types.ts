@@ -119,6 +119,30 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_analyses: {
+        Row: {
+          creado_en: string
+          foto_path: string
+          id: string
+          resultado_json: Json
+          user_id: string
+        }
+        Insert: {
+          creado_en?: string
+          foto_path: string
+          id?: string
+          resultado_json: Json
+          user_id: string
+        }
+        Update: {
+          creado_en?: string
+          foto_path?: string
+          id?: string
+          resultado_json?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           actualizado_en: string

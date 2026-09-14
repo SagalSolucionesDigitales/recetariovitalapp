@@ -1,9 +1,10 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, CalendarRange, MessageCircle, LineChart } from "lucide-react";
+import { Home, CalendarRange, Camera, MessageCircle, LineChart } from "lucide-react";
 
 const items = [
   { to: "/dashboard", label: "Inicio", icon: Home },
   { to: "/plan", label: "Mi Plan", icon: CalendarRange },
+  { to: "/plato", label: "Mi Plato", icon: Camera },
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/progreso", label: "Progreso", icon: LineChart },
 ] as const;
@@ -12,7 +13,7 @@ export function BottomNav() {
   const { pathname } = useLocation();
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 z-40 w-full border-t border-border bg-card/95 backdrop-blur">
-      <ul className="grid grid-cols-4 px-2 pb-[calc(env(safe-area-inset-bottom)+6px)] pt-2">
+      <ul className="grid grid-cols-5 px-1 pb-[calc(env(safe-area-inset-bottom)+6px)] pt-2">
         {items.map(({ to, label, icon: Icon }) => {
           const active = pathname.startsWith(to);
           return (
@@ -26,7 +27,9 @@ export function BottomNav() {
                   strokeWidth={active ? 2.2 : 1.8}
                 />
                 <span className={active ? "text-primary" : "text-muted-foreground"}>{label}</span>
-                <span className={`mt-0.5 h-1 w-1 rounded-full ${active ? "bg-accent" : "bg-transparent"}`} />
+                <span
+                  className={`mt-0.5 h-1 w-1 rounded-full ${active ? "bg-accent" : "bg-transparent"}`}
+                />
               </Link>
             </li>
           );
