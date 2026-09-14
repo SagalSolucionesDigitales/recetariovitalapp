@@ -2,6 +2,27 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
+const PAIS_IDS = [
+  "MX",
+  "CO",
+  "AR",
+  "CL",
+  "PE",
+  "EC",
+  "VE",
+  "GT",
+  "CR",
+  "PA",
+  "DO",
+  "HN",
+  "SV",
+  "NI",
+  "BO",
+  "PY",
+  "UY",
+  "ES",
+] as const;
+
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -16,6 +37,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
   });
 
 const OnboardingSchema = z.object({
+  pais: z.enum(PAIS_IDS),
   condicion_salud: z.enum(["prediabetes", "cardiovascular", "sindrome_metabolico", "control_peso"]),
   glucosa_referencia: z.enum(["100-110", "111-125", "no-se"]).nullable().optional(),
   colesterol_nivel: z.enum(["menos200", "200-239", "mas240", "no-se"]).nullable().optional(),
@@ -36,6 +58,7 @@ export const saveOnboarding = createServerFn({ method: "POST" })
     const { error } = await supabase
       .from("profiles")
       .update({
+        pais: data.pais,
         condicion_salud: data.condicion_salud,
         glucosa_referencia: data.glucosa_referencia ?? null,
         colesterol_nivel: data.colesterol_nivel ?? null,
@@ -60,6 +83,7 @@ export const updateProfileBasics = createServerFn({ method: "POST" })
     z
       .object({
         nombre: z.string().trim().min(1).max(80).optional(),
+        pais: z.enum(PAIS_IDS).optional(),
         condicion_salud: z
           .enum(["prediabetes", "cardiovascular", "sindrome_metabolico", "control_peso"])
           .optional(),

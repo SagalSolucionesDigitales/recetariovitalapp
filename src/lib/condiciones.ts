@@ -33,7 +33,52 @@ export const CONDICIONES: Array<{ id: CondicionSalud; title: string; sub: string
   ];
 
 export function condicionLabel(c: string | null | undefined): string {
-  return CONDICIONES.find((x) => x.id === c)?.label ?? "Dieta Mediterránea mexicana";
+  return CONDICIONES.find((x) => x.id === c)?.label ?? "Dieta Mediterránea";
+}
+
+export type Pais =
+  | "MX"
+  | "CO"
+  | "AR"
+  | "CL"
+  | "PE"
+  | "EC"
+  | "VE"
+  | "GT"
+  | "CR"
+  | "PA"
+  | "DO"
+  | "HN"
+  | "SV"
+  | "NI"
+  | "BO"
+  | "PY"
+  | "UY"
+  | "ES";
+
+export const PAISES: Array<{ id: Pais; nombre: string }> = [
+  { id: "MX", nombre: "México" },
+  { id: "CO", nombre: "Colombia" },
+  { id: "AR", nombre: "Argentina" },
+  { id: "CL", nombre: "Chile" },
+  { id: "PE", nombre: "Perú" },
+  { id: "EC", nombre: "Ecuador" },
+  { id: "VE", nombre: "Venezuela" },
+  { id: "GT", nombre: "Guatemala" },
+  { id: "CR", nombre: "Costa Rica" },
+  { id: "PA", nombre: "Panamá" },
+  { id: "DO", nombre: "República Dominicana" },
+  { id: "HN", nombre: "Honduras" },
+  { id: "SV", nombre: "El Salvador" },
+  { id: "NI", nombre: "Nicaragua" },
+  { id: "BO", nombre: "Bolivia" },
+  { id: "PY", nombre: "Paraguay" },
+  { id: "UY", nombre: "Uruguay" },
+  { id: "ES", nombre: "España" },
+];
+
+export function paisLabel(id: string | null | undefined): string {
+  return PAISES.find((p) => p.id === id)?.nombre ?? "tu país";
 }
 
 type Opcion = { id: string; title: string; sub: string; label: string };

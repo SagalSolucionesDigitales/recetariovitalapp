@@ -131,6 +131,7 @@ export type Database = {
           id: string
           nombre: string | null
           onboarding_completo: boolean
+          pais: string | null
           personas: string | null
           peso_kg: number | null
           presupuesto: string | null
@@ -148,6 +149,7 @@ export type Database = {
           id: string
           nombre?: string | null
           onboarding_completo?: boolean
+          pais?: string | null
           personas?: string | null
           peso_kg?: number | null
           presupuesto?: string | null
@@ -165,6 +167,7 @@ export type Database = {
           id?: string
           nombre?: string | null
           onboarding_completo?: boolean
+          pais?: string | null
           personas?: string | null
           peso_kg?: number | null
           presupuesto?: string | null

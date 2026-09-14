@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   CONDICIONES,
+  PAISES,
   GLUCOSA_OPCIONES,
   COLESTEROL_OPCIONES,
   CINTURA_OPCIONES,
@@ -29,6 +30,7 @@ function CuentaPage() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetch() });
 
   const [nombre, setNombre] = useState("");
+  const [pais, setPais] = useState<string>("");
   const [condicion, setCondicion] = useState<string>("");
   const [glu, setGlu] = useState<string>("");
   const [colesterol, setColesterol] = useState<string>("");
@@ -45,6 +47,7 @@ function CuentaPage() {
   useEffect(() => {
     if (profile) {
       setNombre(profile.nombre ?? "");
+      setPais(profile.pais ?? "");
       setCondicion(profile.condicion_salud ?? "prediabetes");
       setGlu(profile.glucosa_referencia ?? "");
       setColesterol(profile.colesterol_nivel ?? "");
@@ -67,6 +70,7 @@ function CuentaPage() {
       update({
         data: {
           nombre: nombre || undefined,
+          pais: (pais || undefined) as never,
           condicion_salud: (condicion || undefined) as never,
           glucosa_referencia: (condicion === "prediabetes" ? glu || null : null) as never,
           colesterol_nivel: (condicion === "cardiovascular" ? colesterol || null : null) as never,
@@ -126,12 +130,20 @@ function CuentaPage() {
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Datos personales
           </p>
-          <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
-            <Label>Nombre</Label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+          <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
+            <div className="space-y-1">
+              <Label>Nombre</Label>
+              <input
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+              />
+            </div>
+            <Select
+              label="País"
+              value={pais}
+              onChange={setPais}
+              options={PAISES.map((p) => [p.id, p.nombre] as [string, string])}
             />
           </div>
         </section>

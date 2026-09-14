@@ -6,8 +6,11 @@ import { getMyProfile, saveOnboarding } from "@/lib/profile.functions";
 import { generateWeeklyPlan } from "@/lib/ai.functions";
 import {
   type CondicionSalud,
+  type Pais,
   CONDICIONES,
   condicionLabel,
+  PAISES,
+  paisLabel,
   GLUCOSA_OPCIONES,
   COLESTEROL_OPCIONES,
   CINTURA_OPCIONES,
@@ -41,6 +44,7 @@ function OnboardingPage() {
   const genPlan = useServerFn(generateWeeklyPlan);
 
   const [step, setStep] = useState(1);
+  const [pais, setPais] = useState<Pais | null>(null);
   const [condicion, setCondicion] = useState<CondicionSalud | null>(null);
   const [glu, setGlu] = useState<Glu | null>(null);
   const [colesterol, setColesterol] = useState<Colesterol | null>(null);
@@ -66,7 +70,7 @@ function OnboardingPage() {
 
   const restFinal = otraSel && otraTexto.trim() ? [...rest, otraTexto.trim()] : rest;
 
-  const total = 6;
+  const total = 7;
   const indicadorValido =
     condicion === "prediabetes"
       ? !!glu
@@ -79,16 +83,18 @@ function OnboardingPage() {
             : false;
   const canNext =
     step === 1
-      ? !!condicion
+      ? !!pais
       : step === 2
-        ? indicadorValido
+        ? !!condicion
         : step === 3
-          ? restFinal.length > 0
+          ? indicadorValido
           : step === 4
-            ? !!tiempo
+            ? restFinal.length > 0
             : step === 5
-              ? !!personas
-              : !!presup;
+              ? !!tiempo
+              : step === 6
+                ? !!personas
+                : !!presup;
 
   function next() {
     if (step < total) setStep(step + 1);
@@ -96,12 +102,13 @@ function OnboardingPage() {
   }
 
   async function finish() {
-    if (!condicion || !indicadorValido || !tiempo || !personas || !presup) return;
+    if (!pais || !condicion || !indicadorValido || !tiempo || !personas || !presup) return;
     if (generating) return;
     setGenerating(true);
     try {
       await save({
         data: {
+          pais,
           condicion_salud: condicion,
           glucosa_referencia: condicion === "prediabetes" ? glu : null,
           colesterol_nivel: condicion === "cardiovascular" ? colesterol : null,
@@ -166,6 +173,7 @@ function OnboardingPage() {
           </p>
 
           <div className="mt-6 space-y-2.5 rounded-2xl border border-border bg-card p-4 text-left">
+            <Row label="País" value={paisLabel(pais)} />
             <Row label="Condición" value={condicionLabel(condicion)} />
             <Row label="Indicador" value={indicadorLabel()} />
             <Row
@@ -229,9 +237,34 @@ function OnboardingPage() {
       <main className="px-6 pb-28 pt-7">
         {step === 1 && (
           <Step
+            eyebrow="TU PAÍS"
+            title="¿En qué país resides?"
+            subtitle="Adaptamos el idioma, los nombres de los ingredientes y lo que consigues en el mercado a tu país."
+          >
+            <div className="grid grid-cols-2 gap-3">
+              {PAISES.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setPais(p.id)}
+                  className={`relative rounded-xl border p-4 text-left text-sm transition-all ${pais === p.id ? "border-primary bg-primary-soft" : "border-border bg-card"}`}
+                >
+                  <span className="block font-medium">{p.nombre}</span>
+                  <span
+                    className={`absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full border ${pais === p.id ? "border-primary bg-primary text-white" : "border-border bg-card"}`}
+                  >
+                    {pais === p.id && <Check className="h-3 w-3" strokeWidth={3} />}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Step>
+        )}
+
+        {step === 2 && (
+          <Step
             eyebrow="TU CONDICIÓN"
             title="¿Cuál es tu condición de salud principal?"
-            subtitle="Con esto adaptamos tu plan de Dieta Mediterránea-Mexicana a lo que más te ayuda."
+            subtitle="Con esto adaptamos tu plan de Dieta Mediterránea a lo que más te ayuda."
           >
             {CONDICIONES.map((c) => (
               <RadioCard
@@ -245,7 +278,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 2 && condicion === "prediabetes" && (
+        {step === 3 && condicion === "prediabetes" && (
           <Step
             eyebrow="TU PUNTO DE PARTIDA"
             title="¿Cuál fue tu resultado de glucosa en ayunas?"
@@ -263,7 +296,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 2 && condicion === "cardiovascular" && (
+        {step === 3 && condicion === "cardiovascular" && (
           <Step
             eyebrow="TU PUNTO DE PARTIDA"
             title="¿Cuál fue tu último resultado de colesterol total?"
@@ -281,7 +314,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 2 && condicion === "sindrome_metabolico" && (
+        {step === 3 && condicion === "sindrome_metabolico" && (
           <Step
             eyebrow="TU PUNTO DE PARTIDA"
             title="¿Cuál es tu circunferencia de cintura?"
@@ -299,7 +332,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 2 && condicion === "control_peso" && (
+        {step === 3 && condicion === "control_peso" && (
           <Step
             eyebrow="TU PUNTO DE PARTIDA"
             title="Cuéntanos tu peso y estatura"
@@ -328,7 +361,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 3 && (
+        {step === 4 && (
           <Step
             eyebrow="LO QUE EVITAMOS"
             title="¿Qué alimentos evitas o no toleras?"
@@ -381,7 +414,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 4 && (
+        {step === 5 && (
           <Step
             eyebrow="TU RITMO DE VIDA"
             title="¿Cuánto tiempo tienes para cocinar por comida?"
@@ -399,7 +432,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 5 && (
+        {step === 6 && (
           <Step
             eyebrow="TU ENTORNO"
             title="¿Para cuántas personas cocinas?"
@@ -417,7 +450,7 @@ function OnboardingPage() {
           </Step>
         )}
 
-        {step === 6 && (
+        {step === 7 && (
           <Step
             eyebrow="TU PRESUPUESTO"
             title="¿Cuánto destinas a la compra semanal de alimentos?"
