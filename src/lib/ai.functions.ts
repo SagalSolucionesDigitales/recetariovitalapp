@@ -22,14 +22,17 @@ const FOCO_NUTRICIONAL: Record<CondicionSalud, string> = {
     "Prioriza la saciedad con fibra y proteína magra, cuida la densidad calórica y el tamaño de las porciones sin sacrificar el sabor.",
 };
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+// Google Gemini's OpenAI-compatible endpoint — same request/response shape
+// as the Lovable AI Gateway this replaces, just pointed at Google directly.
+const GATEWAY = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+const MODEL = "gemini-2.5-flash";
 
 async function callAI(
   messages: Array<{ role: string; content: string }>,
   opts?: { json?: boolean },
 ) {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("LOVABLE_API_KEY no está configurado.");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY no está configurado.");
   const res = await fetch(GATEWAY, {
     method: "POST",
     headers: {
@@ -37,7 +40,7 @@ async function callAI(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: MODEL,
       messages,
       ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
     }),
@@ -45,7 +48,8 @@ async function callAI(
   if (!res.ok) {
     const txt = await res.text();
     if (res.status === 429) throw new Error("Demasiadas solicitudes. Inténtalo en un momento.");
-    if (res.status === 402) throw new Error("Sin créditos disponibles. Contacta a soporte.");
+    if (res.status === 403)
+      throw new Error("Sin créditos o permisos en la API de Gemini. Contacta a soporte.");
     throw new Error(`AI error ${res.status}: ${txt.slice(0, 200)}`);
   }
   const data = await res.json();
