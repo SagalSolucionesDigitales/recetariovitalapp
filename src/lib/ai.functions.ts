@@ -47,6 +47,7 @@ async function callAI(
   });
   if (!res.ok) {
     const txt = await res.text();
+    console.error("[ai.callAI] Gemini error", { status: res.status, body: txt.slice(0, 1000) });
     if (res.status === 429) throw new Error("Demasiadas solicitudes. Inténtalo en un momento.");
     if (res.status === 403)
       throw new Error("Sin créditos o permisos en la API de Gemini. Contacta a soporte.");
