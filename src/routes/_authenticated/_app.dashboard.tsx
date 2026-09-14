@@ -8,6 +8,7 @@ import {
   Coffee,
   Sun,
   Moon,
+  Cake,
   ArrowRight,
   Plus,
   Check,
@@ -140,6 +141,11 @@ function Dashboard() {
                 label="Cena"
                 name={todayPlan?.cena?.nombre ?? "Aún no generado"}
               />
+              <MealRow
+                icon={Cake}
+                label="Postre"
+                name={todayPlan?.postre?.nombre ?? "Aún no generado"}
+              />
             </div>
             {!plan && (
               <div className="border-t border-border p-3">
@@ -240,7 +246,7 @@ type Comida = {
   ig_nivel?: string;
   costo_usd?: number;
 };
-type Dia = { dia: string; desayuno: Comida; almuerzo: Comida; cena: Comida };
+type Dia = { dia: string; desayuno: Comida; almuerzo: Comida; cena: Comida; postre: Comida };
 type PlanJson = { semana?: string; dias?: Dia[] };
 
 function MealRow({
