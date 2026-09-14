@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppCuentaRouteImport } from './routes/_authenticated/_app.cuenta'
 import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/_app.compras'
 import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/_app.coach'
+import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/_app.biblioteca'
 import { Route as AuthenticatedAppAjustesRouteImport } from './routes/_authenticated/_app.ajustes'
 
 const SinAccesoRoute = SinAccesoRouteImport.update({
@@ -108,6 +109,12 @@ const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
   path: '/coach',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppBibliotecaRoute =
+  AuthenticatedAppBibliotecaRouteImport.update({
+    id: '/biblioteca',
+    path: '/biblioteca',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppAjustesRoute = AuthenticatedAppAjustesRouteImport.update({
   id: '/ajustes',
   path: '/ajustes',
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/sin-acceso': typeof SinAccesoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
+  '/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/coach': typeof AuthenticatedAppCoachRoute
   '/compras': typeof AuthenticatedAppComprasRoute
   '/cuenta': typeof AuthenticatedAppCuentaRoute
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
   '/sin-acceso': typeof SinAccesoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
+  '/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/coach': typeof AuthenticatedAppCoachRoute
   '/compras': typeof AuthenticatedAppComprasRoute
   '/cuenta': typeof AuthenticatedAppCuentaRoute
@@ -158,6 +167,7 @@ export interface FileRoutesById {
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/_app/ajustes': typeof AuthenticatedAppAjustesRoute
+  '/_authenticated/_app/biblioteca': typeof AuthenticatedAppBibliotecaRoute
   '/_authenticated/_app/coach': typeof AuthenticatedAppCoachRoute
   '/_authenticated/_app/compras': typeof AuthenticatedAppComprasRoute
   '/_authenticated/_app/cuenta': typeof AuthenticatedAppCuentaRoute
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/sin-acceso'
     | '/onboarding'
     | '/ajustes'
+    | '/biblioteca'
     | '/coach'
     | '/compras'
     | '/cuenta'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/sin-acceso'
     | '/onboarding'
     | '/ajustes'
+    | '/biblioteca'
     | '/coach'
     | '/compras'
     | '/cuenta'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
     | '/_authenticated/_app/ajustes'
+    | '/_authenticated/_app/biblioteca'
     | '/_authenticated/_app/coach'
     | '/_authenticated/_app/compras'
     | '/_authenticated/_app/cuenta'
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/_app/biblioteca': {
+      id: '/_authenticated/_app/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof AuthenticatedAppBibliotecaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/_app/ajustes': {
       id: '/_authenticated/_app/ajustes'
       path: '/ajustes'
@@ -359,6 +379,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAjustesRoute: typeof AuthenticatedAppAjustesRoute
+  AuthenticatedAppBibliotecaRoute: typeof AuthenticatedAppBibliotecaRoute
   AuthenticatedAppCoachRoute: typeof AuthenticatedAppCoachRoute
   AuthenticatedAppComprasRoute: typeof AuthenticatedAppComprasRoute
   AuthenticatedAppCuentaRoute: typeof AuthenticatedAppCuentaRoute
@@ -371,6 +392,7 @@ interface AuthenticatedAppRouteChildren {
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAjustesRoute: AuthenticatedAppAjustesRoute,
+  AuthenticatedAppBibliotecaRoute: AuthenticatedAppBibliotecaRoute,
   AuthenticatedAppCoachRoute: AuthenticatedAppCoachRoute,
   AuthenticatedAppComprasRoute: AuthenticatedAppComprasRoute,
   AuthenticatedAppCuentaRoute: AuthenticatedAppCuentaRoute,

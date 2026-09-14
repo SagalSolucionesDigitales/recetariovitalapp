@@ -14,10 +14,12 @@ import {
   Check,
   MessageCircle,
   Camera,
+  BookOpen,
 } from "lucide-react";
 import { getMyProfile } from "@/lib/profile.functions";
 import { getRecentCheckins } from "@/lib/checkin.functions";
 import { getLatestPlan } from "@/lib/ai.functions";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 export const Route = createFileRoute("/_authenticated/_app/dashboard")({
   head: () => ({ meta: [{ title: "Inicio — Recetario Vital" }] }),
@@ -87,6 +89,8 @@ function Dashboard() {
       </header>
 
       <main className="mx-auto max-w-2xl space-y-3.5 px-5 py-5">
+        <InstallAppButton />
+
         {/* Check-in */}
         {todayCheckin ? (
           <div className="flex items-center gap-3 rounded-2xl bg-primary-soft p-4">
@@ -173,6 +177,25 @@ function Dashboard() {
               <p className="text-sm font-medium">Analiza tu plato</p>
               <p className="text-xs text-muted-foreground">
                 Fotografía tu comida y mide porciones y calorías
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </Link>
+
+        {/* Biblioteca / Bonos exclusivos */}
+        <Link
+          to="/biblioteca"
+          className="flex items-center justify-between rounded-2xl border border-border bg-card p-4"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
+              <BookOpen className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-medium">Biblioteca y bonos exclusivos</p>
+              <p className="text-xs text-muted-foreground">
+                Recetario Vital, Keto Fácil y Detox Natural en PDF
               </p>
             </div>
           </div>

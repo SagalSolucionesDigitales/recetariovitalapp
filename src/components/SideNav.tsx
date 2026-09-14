@@ -6,6 +6,7 @@ import {
   MessageCircle,
   LineChart,
   ShoppingBasket,
+  BookOpen,
   Settings,
 } from "lucide-react";
 
@@ -16,6 +17,7 @@ const mainItems = [
   { to: "/coach", label: "Coach", icon: MessageCircle },
   { to: "/progreso", label: "Progreso", icon: LineChart },
   { to: "/compras", label: "Compras", icon: ShoppingBasket },
+  { to: "/biblioteca", label: "Biblioteca", icon: BookOpen },
 ] as const;
 
 export function SideNav() {
