@@ -68,39 +68,90 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      hotmart_purchases: {
         Row: {
           actualizado_en: string
           creado_en: string
+          email: string
+          hotmart_transaction: string
+          id: string
+          payload: Json | null
+          product_id: string | null
+          purchased_at: string | null
+          status: string
+        }
+        Insert: {
+          actualizado_en?: string
+          creado_en?: string
+          email: string
+          hotmart_transaction: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          purchased_at?: string | null
+          status: string
+        }
+        Update: {
+          actualizado_en?: string
+          creado_en?: string
+          email?: string
+          hotmart_transaction?: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          purchased_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          actualizado_en: string
+          circunferencia_cintura: string | null
+          colesterol_nivel: string | null
+          condicion_salud: string | null
+          creado_en: string
+          estatura_cm: number | null
           glucosa_referencia: string | null
           id: string
           nombre: string | null
           onboarding_completo: boolean
           personas: string | null
+          peso_kg: number | null
           presupuesto: string | null
           restricciones: string[] | null
           tiempo_cocina: string | null
         }
         Insert: {
           actualizado_en?: string
+          circunferencia_cintura?: string | null
+          colesterol_nivel?: string | null
+          condicion_salud?: string | null
           creado_en?: string
+          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
+          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
         }
         Update: {
           actualizado_en?: string
+          circunferencia_cintura?: string | null
+          colesterol_nivel?: string | null
+          condicion_salud?: string | null
           creado_en?: string
+          estatura_cm?: number | null
           glucosa_referencia?: string | null
           id?: string
           nombre?: string | null
           onboarding_completo?: boolean
           personas?: string | null
+          peso_kg?: number | null
           presupuesto?: string | null
           restricciones?: string[] | null
           tiempo_cocina?: string | null
@@ -169,7 +220,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_hotmart_access: { Args: { p_email: string }; Returns: boolean }
+      has_hotmart_access: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
