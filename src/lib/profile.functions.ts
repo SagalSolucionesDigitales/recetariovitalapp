@@ -22,7 +22,7 @@ const OnboardingSchema = z.object({
   circunferencia_cintura: z.enum(["menos80", "80-99", "mas100", "no-se"]).nullable().optional(),
   peso_kg: z.number().positive().max(400).nullable().optional(),
   estatura_cm: z.number().positive().max(260).nullable().optional(),
-  restricciones: z.array(z.string()).max(10),
+  restricciones: z.array(z.string().trim().min(1).max(60)).max(10),
   tiempo_cocina: z.enum(["menos15", "15-30", "mas30"]),
   personas: z.enum(["1", "2", "3+"]),
   presupuesto: z.enum(["menos500", "500-1000", "mas1000"]),
@@ -56,19 +56,28 @@ export const saveOnboarding = createServerFn({ method: "POST" })
 
 export const updateProfileBasics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({
-    nombre: z.string().trim().min(1).max(80).optional(),
-    condicion_salud: z.enum(["prediabetes", "cardiovascular", "sindrome_metabolico", "control_peso"]).optional(),
-    glucosa_referencia: z.enum(["100-110", "111-125", "no-se"]).nullable().optional(),
-    colesterol_nivel: z.enum(["menos200", "200-239", "mas240", "no-se"]).nullable().optional(),
-    circunferencia_cintura: z.enum(["menos80", "80-99", "mas100", "no-se"]).nullable().optional(),
-    peso_kg: z.number().positive().max(400).nullable().optional(),
-    estatura_cm: z.number().positive().max(260).nullable().optional(),
-    restricciones: z.array(z.string()).max(10).optional(),
-    tiempo_cocina: z.enum(["menos15", "15-30", "mas30"]).optional(),
-    personas: z.enum(["1", "2", "3+"]).optional(),
-    presupuesto: z.enum(["menos500", "500-1000", "mas1000"]).optional(),
-  }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({
+        nombre: z.string().trim().min(1).max(80).optional(),
+        condicion_salud: z
+          .enum(["prediabetes", "cardiovascular", "sindrome_metabolico", "control_peso"])
+          .optional(),
+        glucosa_referencia: z.enum(["100-110", "111-125", "no-se"]).nullable().optional(),
+        colesterol_nivel: z.enum(["menos200", "200-239", "mas240", "no-se"]).nullable().optional(),
+        circunferencia_cintura: z
+          .enum(["menos80", "80-99", "mas100", "no-se"])
+          .nullable()
+          .optional(),
+        peso_kg: z.number().positive().max(400).nullable().optional(),
+        estatura_cm: z.number().positive().max(260).nullable().optional(),
+        restricciones: z.array(z.string().trim().min(1).max(60)).max(10).optional(),
+        tiempo_cocina: z.enum(["menos15", "15-30", "mas30"]).optional(),
+        personas: z.enum(["1", "2", "3+"]).optional(),
+        presupuesto: z.enum(["menos500", "500-1000", "mas1000"]).optional(),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase

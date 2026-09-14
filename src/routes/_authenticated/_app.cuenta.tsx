@@ -12,6 +12,8 @@ import {
   COLESTEROL_OPCIONES,
   CINTURA_OPCIONES,
   RESTRICCIONES_OPCIONES,
+  RESTRICCION_OTRA_ID,
+  extraerRestriccionOtra,
 } from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/cuenta")({
@@ -34,6 +36,8 @@ function CuentaPage() {
   const [pesoKg, setPesoKg] = useState<string>("");
   const [estaturaCm, setEstaturaCm] = useState<string>("");
   const [rest, setRest] = useState<string[]>([]);
+  const [otraSel, setOtraSel] = useState(false);
+  const [otraTexto, setOtraTexto] = useState("");
   const [tiempo, setTiempo] = useState<string>("");
   const [personas, setPersonas] = useState<string>("");
   const [presup, setPresup] = useState<string>("");
@@ -47,7 +51,11 @@ function CuentaPage() {
       setCintura(profile.circunferencia_cintura ?? "");
       setPesoKg(profile.peso_kg != null ? String(profile.peso_kg) : "");
       setEstaturaCm(profile.estatura_cm != null ? String(profile.estatura_cm) : "");
-      setRest(profile.restricciones ?? []);
+      const storedRest = profile.restricciones ?? [];
+      const custom = extraerRestriccionOtra(storedRest);
+      setRest(custom ? storedRest.filter((r) => r !== custom) : storedRest);
+      setOtraSel(!!custom);
+      setOtraTexto(custom);
       setTiempo(profile.tiempo_cocina ?? "");
       setPersonas(profile.personas ?? "");
       setPresup(profile.presupuesto ?? "");
@@ -69,7 +77,7 @@ function CuentaPage() {
           estatura_cm: (condicion === "control_peso" && estaturaCm
             ? Number(estaturaCm)
             : null) as never,
-          restricciones: rest,
+          restricciones: otraSel && otraTexto.trim() ? [...rest, otraTexto.trim()] : rest,
           tiempo_cocina: (tiempo || undefined) as never,
           personas: (personas || undefined) as never,
           presupuesto: (presup || undefined) as never,
@@ -185,7 +193,15 @@ function CuentaPage() {
                 </div>
               </div>
             )}
-            <MultiCheck label="Restricciones alimentarias" value={rest} onChange={setRest} />
+            <MultiCheck
+              label="Restricciones alimentarias"
+              value={rest}
+              onChange={setRest}
+              otraSel={otraSel}
+              otraTexto={otraTexto}
+              onOtraSelChange={setOtraSel}
+              onOtraTextoChange={setOtraTexto}
+            />
             <Select
               label="Tiempo de cocina"
               value={tiempo}
@@ -292,24 +308,39 @@ function MultiCheck({
   label,
   value,
   onChange,
+  otraSel,
+  otraTexto,
+  onOtraSelChange,
+  onOtraTextoChange,
 }: {
   label: string;
   value: string[];
   onChange: (v: string[]) => void;
+  otraSel: boolean;
+  otraTexto: string;
+  onOtraSelChange: (v: boolean) => void;
+  onOtraTextoChange: (v: string) => void;
 }) {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
       <div className="grid grid-cols-2 gap-2">
         {RESTRICCIONES_OPCIONES.map(({ id, l: text }) => {
-          const selected = value.includes(id);
+          const selected = id === RESTRICCION_OTRA_ID ? otraSel : value.includes(id);
           return (
             <button
               key={id}
               type="button"
               onClick={() => {
-                if (id === "ninguno") onChange(selected ? [] : ["ninguno"]);
-                else
+                if (id === "ninguno") {
+                  onChange(selected ? [] : ["ninguno"]);
+                  onOtraSelChange(false);
+                  onOtraTextoChange("");
+                } else if (id === RESTRICCION_OTRA_ID) {
+                  onChange(value.filter((x) => x !== "ninguno"));
+                  onOtraSelChange(!selected);
+                  if (selected) onOtraTextoChange("");
+                } else
                   onChange(
                     selected
                       ? value.filter((x) => x !== id)
@@ -324,6 +355,16 @@ function MultiCheck({
           );
         })}
       </div>
+      {otraSel && (
+        <input
+          type="text"
+          value={otraTexto}
+          onChange={(e) => onOtraTextoChange(e.target.value)}
+          placeholder="¿Cuál? Ej. Nueces, aguacate…"
+          maxLength={60}
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
+        />
+      )}
     </div>
   );
 }

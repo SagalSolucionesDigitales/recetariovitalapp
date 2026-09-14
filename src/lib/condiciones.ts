@@ -108,6 +108,8 @@ export const CINTURA_OPCIONES: Opcion[] = [
   },
 ];
 
+export const RESTRICCION_OTRA_ID = "otra";
+
 export const RESTRICCIONES_OPCIONES: Array<{ id: string; l: string }> = [
   { id: "gluten", l: "🌾 Gluten" },
   { id: "lacteos", l: "🥛 Lácteos" },
@@ -115,7 +117,17 @@ export const RESTRICCIONES_OPCIONES: Array<{ id: string; l: string }> = [
   { id: "cerdo", l: "🥩 Cerdo" },
   { id: "picante", l: "🌶️ Picante" },
   { id: "ninguno", l: "✅ Ninguno por ahora" },
+  { id: RESTRICCION_OTRA_ID, l: "➕ Otra, ¿cuál?" },
 ];
+
+const RESTRICCIONES_IDS_FIJOS = new Set(
+  RESTRICCIONES_OPCIONES.map((o) => o.id).filter((id) => id !== RESTRICCION_OTRA_ID),
+);
+
+/** The free-text value entered via "Otra, ¿cuál?" (stored inline in the restricciones array), if any. */
+export function extraerRestriccionOtra(restricciones: string[]): string {
+  return restricciones.find((r) => !RESTRICCIONES_IDS_FIJOS.has(r)) ?? "";
+}
 
 export const TIEMPO_OPCIONES: Opcion[] = [
   {
