@@ -25,7 +25,7 @@ const FOCO_NUTRICIONAL: Record<CondicionSalud, string> = {
 // Google Gemini's OpenAI-compatible endpoint — same request/response shape
 // as the Lovable AI Gateway this replaces, just pointed at Google directly.
 const GATEWAY = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3.6-flash";
 
 async function callAI(
   messages: Array<{ role: string; content: string }>,
