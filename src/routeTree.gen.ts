@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as SinAccesoRouteImport } from './routes/sin-acceso'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,6 +30,11 @@ import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/_app.biblioteca'
 import { Route as AuthenticatedAppAjustesRouteImport } from './routes/_authenticated/_app.ajustes'
 
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SinAccesoRoute = SinAccesoRouteImport.update({
   id: '/sin-acceso',
   path: '/sin-acceso',
@@ -36,6 +43,11 @@ const SinAccesoRoute = SinAccesoRouteImport.update({
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -124,8 +136,10 @@ const AuthenticatedAppAjustesRoute = AuthenticatedAppAjustesRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/privacidad': typeof PrivacidadRoute
   '/signup': typeof SignupRoute
   '/sin-acceso': typeof SinAccesoRoute
+  '/terminos': typeof TerminosRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/biblioteca': typeof AuthenticatedAppBibliotecaRoute
@@ -142,8 +156,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/privacidad': typeof PrivacidadRoute
   '/signup': typeof SignupRoute
   '/sin-acceso': typeof SinAccesoRoute
+  '/terminos': typeof TerminosRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/ajustes': typeof AuthenticatedAppAjustesRoute
   '/biblioteca': typeof AuthenticatedAppBibliotecaRoute
@@ -162,8 +178,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/privacidad': typeof PrivacidadRoute
   '/signup': typeof SignupRoute
   '/sin-acceso': typeof SinAccesoRoute
+  '/terminos': typeof TerminosRoute
   '/_authenticated/_app': typeof AuthenticatedAppRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/_app/ajustes': typeof AuthenticatedAppAjustesRoute
@@ -183,8 +201,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/privacidad'
     | '/signup'
     | '/sin-acceso'
+    | '/terminos'
     | '/onboarding'
     | '/ajustes'
     | '/biblioteca'
@@ -201,8 +221,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/privacidad'
     | '/signup'
     | '/sin-acceso'
+    | '/terminos'
     | '/onboarding'
     | '/ajustes'
     | '/biblioteca'
@@ -220,8 +242,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/privacidad'
     | '/signup'
     | '/sin-acceso'
+    | '/terminos'
     | '/_authenticated/_app'
     | '/_authenticated/onboarding'
     | '/_authenticated/_app/ajustes'
@@ -241,13 +265,22 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PrivacidadRoute: typeof PrivacidadRoute
   SignupRoute: typeof SignupRoute
   SinAccesoRoute: typeof SinAccesoRoute
+  TerminosRoute: typeof TerminosRoute
   ApiPublicHotmartWebhookRoute: typeof ApiPublicHotmartWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sin-acceso': {
       id: '/sin-acceso'
       path: '/sin-acceso'
@@ -260,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -424,8 +464,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  PrivacidadRoute: PrivacidadRoute,
   SignupRoute: SignupRoute,
   SinAccesoRoute: SinAccesoRoute,
+  TerminosRoute: TerminosRoute,
   ApiPublicHotmartWebhookRoute: ApiPublicHotmartWebhookRoute,
 }
 export const routeTree = rootRouteImport

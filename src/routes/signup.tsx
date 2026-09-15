@@ -181,13 +181,21 @@ function SignupPage() {
             />
             <span>
               Acepto los{" "}
-              <a className="font-medium text-primary underline-offset-2 hover:underline">
+              <Link
+                to="/terminos"
+                target="_blank"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
                 Términos de uso
-              </a>{" "}
+              </Link>{" "}
               y la{" "}
-              <a className="font-medium text-primary underline-offset-2 hover:underline">
+              <Link
+                to="/privacidad"
+                target="_blank"
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
                 Política de privacidad
-              </a>
+              </Link>
               . Entiendo que Recetario Vital no reemplaza la consulta médica.
             </span>
           </label>

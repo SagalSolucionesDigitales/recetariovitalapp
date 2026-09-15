@@ -89,8 +89,8 @@ function AjustesPage() {
             value={prefs.idioma}
             onChange={(v) => update("idioma", v as Prefs["idioma"])}
             options={[
-              ["es-MX", "Español (México)"],
-              ["es", "Español neutro"],
+              ["es-MX", "Español latino"],
+              ["es", "Español"],
             ]}
           />
         </Group>
@@ -111,8 +111,18 @@ function AjustesPage() {
         </Group>
 
         <Group title="Legal" icon={FileText}>
-          <Row label="Términos y condiciones" />
-          <Row label="Política de privacidad" />
+          <Link
+            to="/terminos"
+            className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-muted"
+          >
+            Términos y condiciones
+          </Link>
+          <Link
+            to="/privacidad"
+            className="block rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-muted"
+          >
+            Política de privacidad
+          </Link>
           <Row label="Recetario Vital · v1.0" muted />
         </Group>
 
