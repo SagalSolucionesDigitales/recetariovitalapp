@@ -99,6 +99,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
 
         let sent = 0;
         const staleEndpoints: string[] = [];
+        const pushResults: unknown[] = [];
 
         for (const userId of userIds) {
           const userSubs = subsByUser.get(userId);
@@ -117,13 +118,20 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
 
           for (const sub of userSubs) {
             try {
-              await webpush.sendNotification(
+              const result = await webpush.sendNotification(
                 { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
                 payload,
               );
+              pushResults.push({
+                endpoint: sub.endpoint.slice(-24),
+                statusCode: result.statusCode,
+                headers: result.headers,
+              });
               sent++;
             } catch (err) {
               const statusCode = (err as { statusCode?: number })?.statusCode;
+              const message = (err as { body?: string; message?: string })?.body ?? (err as Error)?.message;
+              pushResults.push({ endpoint: sub.endpoint.slice(-24), statusCode, error: message });
               if (statusCode === 404 || statusCode === 410) {
                 staleEndpoints.push(sub.endpoint);
               } else {
@@ -147,6 +155,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
             hasCheckinToday: [...hasCheckinToday],
             hasPlanThisWeek: [...hasPlanThisWeek],
             subsByUser: [...subsByUser.entries()].map(([uid, arr]) => [uid, arr.length]),
+            pushResults,
           }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
