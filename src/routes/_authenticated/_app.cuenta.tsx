@@ -15,6 +15,7 @@ import {
   RESTRICCIONES_OPCIONES,
   RESTRICCION_OTRA_ID,
   extraerRestriccionOtra,
+  presupuestoOpciones,
 } from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/cuenta")({
@@ -238,11 +239,7 @@ function CuentaPage() {
               label="Presupuesto semanal"
               value={presup}
               onChange={setPresup}
-              options={[
-                ["menos500", "Menos de $500 MXN"],
-                ["500-1000", "$500–$1,000 MXN"],
-                ["mas1000", "Más de $1,000 MXN"],
-              ]}
+              options={presupuestoOpciones(pais).map((o) => [o.id, o.label] as [string, string])}
             />
           </div>
         </section>

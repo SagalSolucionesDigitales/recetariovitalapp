@@ -9,7 +9,7 @@ import {
   paisLabel,
   TIEMPO_OPCIONES,
   PERSONAS_OPCIONES,
-  PRESUPUESTO_OPCIONES,
+  presupuestoOpciones,
 } from "./condiciones";
 
 const FOCO_NUTRICIONAL: Record<CondicionSalud, string> = {
@@ -92,7 +92,7 @@ function describePerfil(p: {
     `Restricciones: ${(p.restricciones ?? []).filter((r) => r !== "ninguno").join(", ") || "ninguna"}`,
     `Tiempo de cocina: ${TIEMPO_OPCIONES.find((o) => o.id === p.tiempo_cocina)?.label ?? "sin dato"}`,
     `Personas en casa: ${PERSONAS_OPCIONES.find((o) => o.id === p.personas)?.label ?? "sin dato"}`,
-    `Presupuesto: ${PRESUPUESTO_OPCIONES.find((o) => o.id === p.presupuesto)?.label ?? "sin dato"}`,
+    `Presupuesto: ${presupuestoOpciones(p.pais).find((o) => o.id === p.presupuesto)?.label ?? "sin dato"}`,
   ].join(". ");
 }
 

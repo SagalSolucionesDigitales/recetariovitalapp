@@ -18,7 +18,7 @@ import {
   RESTRICCION_OTRA_ID,
   TIEMPO_OPCIONES,
   PERSONAS_OPCIONES,
-  PRESUPUESTO_OPCIONES,
+  presupuestoOpciones,
   calcularIMC,
   categorizarIMC,
   IMC_LABELS,
@@ -182,7 +182,7 @@ function OnboardingPage() {
             />
             <Row label="Tiempo de cocina" value={tiempoLabel(tiempo)} />
             <Row label="Personas en casa" value={personasLabel(personas)} />
-            <Row label="Presupuesto" value={presupLabel(presup)} />
+            <Row label="Presupuesto" value={presupLabel(presup, pais)} />
           </div>
 
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-primary-soft p-4 text-left">
@@ -456,7 +456,7 @@ function OnboardingPage() {
             title="¿Cuánto destinas a la compra semanal de alimentos?"
             subtitle="Priorizaremos ingredientes accesibles y nutritivos dentro de tu rango."
           >
-            {PRESUPUESTO_OPCIONES.map((o) => (
+            {presupuestoOpciones(pais).map((o) => (
               <RadioCard
                 key={o.id}
                 active={presup === o.id}
@@ -584,6 +584,6 @@ function tiempoLabel(t: Tiempo | null) {
 function personasLabel(p: Personas | null) {
   return PERSONAS_OPCIONES.find((o) => o.id === p)?.label ?? "";
 }
-function presupLabel(p: Presup | null) {
-  return PRESUPUESTO_OPCIONES.find((o) => o.id === p)?.label ?? "";
+function presupLabel(p: Presup | null, pais: string | null) {
+  return presupuestoOpciones(pais).find((o) => o.id === p)?.label ?? "";
 }

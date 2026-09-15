@@ -220,26 +220,94 @@ export const PERSONAS_OPCIONES: Opcion[] = [
   },
 ];
 
-export const PRESUPUESTO_OPCIONES: Opcion[] = [
-  {
-    id: "menos500",
-    title: "Menos de $500 MXN",
-    sub: "Recetas económicas con ingredientes de mercado local",
-    label: "< $500 MXN",
-  },
-  {
-    id: "500-1000",
-    title: "Entre $500 y $1,000 MXN",
-    sub: "Buen balance entre variedad y costo",
-    label: "$500–$1,000 MXN",
-  },
-  {
-    id: "mas1000",
-    title: "Más de $1,000 MXN",
-    sub: "Mayor variedad y opciones especializadas",
-    label: "> $1,000 MXN",
-  },
-];
+type MonedaInfo = { codigo: string; locale: string };
+
+// Ecuador, Panamá, El Salvador y Puerto Rico usan USD oficialmente.
+// Venezuela y Cuba se muestran en USD también: sus monedas oficiales son tan
+// volátiles/distorsionadas (hiperinflación, tipo de cambio informal) que una
+// cifra fija en VES/CUP quedaría obsoleta o sin sentido en poco tiempo.
+const MONEDA_POR_PAIS: Record<Pais, MonedaInfo> = {
+  MX: { codigo: "MXN", locale: "es-MX" },
+  CO: { codigo: "COP", locale: "es-CO" },
+  AR: { codigo: "ARS", locale: "es-AR" },
+  CL: { codigo: "CLP", locale: "es-CL" },
+  PE: { codigo: "PEN", locale: "es-PE" },
+  EC: { codigo: "USD", locale: "es-EC" },
+  VE: { codigo: "USD", locale: "es-VE" },
+  GT: { codigo: "GTQ", locale: "es-GT" },
+  CR: { codigo: "CRC", locale: "es-CR" },
+  PA: { codigo: "USD", locale: "es-PA" },
+  DO: { codigo: "DOP", locale: "es-DO" },
+  HN: { codigo: "HNL", locale: "es-HN" },
+  SV: { codigo: "USD", locale: "es-SV" },
+  NI: { codigo: "NIO", locale: "es-NI" },
+  BO: { codigo: "BOB", locale: "es-BO" },
+  PY: { codigo: "PYG", locale: "es-PY" },
+  UY: { codigo: "UYU", locale: "es-UY" },
+  CU: { codigo: "USD", locale: "es-CU" },
+  PR: { codigo: "USD", locale: "es-PR" },
+  ES: { codigo: "EUR", locale: "es-ES" },
+};
+
+// Referencias redondeadas de presupuesto semanal de mercado en la moneda de
+// cada país (no son precios exactos, solo los 2 puntos de corte entre las 3
+// franjas bajo/medio/alto).
+const PRESUPUESTO_BANDAS: Record<Pais, [number, number]> = {
+  MX: [500, 1000],
+  CO: [100000, 200000],
+  AR: [15000, 30000],
+  CL: [20000, 40000],
+  PE: [80, 150],
+  EC: [25, 50],
+  VE: [25, 50],
+  GT: [150, 300],
+  CR: [15000, 30000],
+  PA: [25, 50],
+  DO: [1500, 3000],
+  HN: [600, 1200],
+  SV: [25, 50],
+  NI: [900, 1800],
+  BO: [180, 350],
+  PY: [180000, 350000],
+  UY: [1000, 2000],
+  CU: [25, 50],
+  PR: [25, 50],
+  ES: [25, 50],
+};
+
+function formatMoneda(monto: number, pais: Pais): string {
+  const m = MONEDA_POR_PAIS[pais];
+  return new Intl.NumberFormat(m.locale, {
+    style: "currency",
+    currency: m.codigo,
+    maximumFractionDigits: 0,
+  }).format(monto);
+}
+
+export function presupuestoOpciones(pais: string | null | undefined): Opcion[] {
+  const p = PAISES.some((x) => x.id === pais) ? (pais as Pais) : "MX";
+  const [bajo, alto] = PRESUPUESTO_BANDAS[p];
+  return [
+    {
+      id: "menos500",
+      title: `Menos de ${formatMoneda(bajo, p)}`,
+      sub: "Recetas económicas con ingredientes de mercado local",
+      label: `< ${formatMoneda(bajo, p)}`,
+    },
+    {
+      id: "500-1000",
+      title: `Entre ${formatMoneda(bajo, p)} y ${formatMoneda(alto, p)}`,
+      sub: "Buen balance entre variedad y costo",
+      label: `${formatMoneda(bajo, p)}–${formatMoneda(alto, p)}`,
+    },
+    {
+      id: "mas1000",
+      title: `Más de ${formatMoneda(alto, p)}`,
+      sub: "Mayor variedad y opciones especializadas",
+      label: `> ${formatMoneda(alto, p)}`,
+    },
+  ];
+}
 
 export function calcularIMC(pesoKg: number, estaturaCm: number): number {
   const m = estaturaCm / 100;
