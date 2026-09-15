@@ -12,9 +12,9 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const vapidPublic = process.env.VAPID_PUBLIC_KEY;
-        const vapidPrivate = process.env.VAPID_PRIVATE_KEY;
-        const vapidSubject = process.env.VAPID_SUBJECT || "mailto:hola@recetariovital.app";
+        const vapidPublic = process.env.VAPID_PUBLIC_KEY?.trim();
+        const vapidPrivate = process.env.VAPID_PRIVATE_KEY?.trim();
+        const vapidSubject = (process.env.VAPID_SUBJECT || "mailto:hola@recetariovital.app").trim();
         if (!vapidPublic || !vapidPrivate) {
           console.error("[cron-recordatorios] Missing VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY");
           return new Response("Missing VAPID config", { status: 500 });

@@ -4,7 +4,9 @@ import { z } from "zod";
 
 // Public — safe to expose in the client bundle. Set VITE_VAPID_PUBLIC_KEY in
 // Vercel to the same value as the server-only VAPID_PUBLIC_KEY.
-export const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+export const VAPID_PUBLIC_KEY = (
+  import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
+)?.trim();
 
 const SubscriptionSchema = z.object({
   endpoint: z.string().url(),
