@@ -109,6 +109,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
 
         return new Response(
           JSON.stringify({
+            marker: "v2-debug",
             sent,
             today,
             semanaInicio,
