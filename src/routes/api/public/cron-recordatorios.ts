@@ -6,6 +6,10 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
       // Vercel Cron sends GET with an `Authorization: Bearer $CRON_SECRET`
       // header (when CRON_SECRET is set in the project's env vars).
       GET: async ({ request }) => {
+        return new Response(JSON.stringify({ canaryV3: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
         const cronSecret = process.env.CRON_SECRET;
         const auth = request.headers.get("authorization");
         if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
