@@ -107,10 +107,23 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
           await supabaseAdmin.from("push_subscriptions").delete().in("endpoint", staleEndpoints);
         }
 
-        return new Response(JSON.stringify({ sent }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+        const debug = new URL(request.url).searchParams.get("debug") === "1";
+        return new Response(
+          JSON.stringify(
+            debug
+              ? {
+                  sent,
+                  today,
+                  semanaInicio,
+                  userIds,
+                  hasCheckinToday: [...hasCheckinToday],
+                  hasPlanThisWeek: [...hasPlanThisWeek],
+                  subsByUser: [...subsByUser.entries()].map(([uid, arr]) => [uid, arr.length]),
+                }
+              : { sent },
+          ),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
       },
     },
   },
