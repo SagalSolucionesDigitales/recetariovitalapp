@@ -31,9 +31,23 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
         monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
         const semanaInicio = monday.toISOString().slice(0, 10);
 
-        const supabaseUrlHost = (process.env.SUPABASE_URL || "")
-          .replace(/^https?:\/\//, "")
-          .split(".")[0];
+        function decodeJwtClaims(token: string | undefined) {
+          if (!token) return null;
+          const parts = token.split(".");
+          if (parts.length !== 3) return { invalid: true, length: token.length };
+          try {
+            const payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+            const pad = "=".repeat((4 - (payload.length % 4)) % 4);
+            const json = Buffer.from(payload + pad, "base64").toString("utf8");
+            return JSON.parse(json);
+          } catch {
+            return { invalid: true, length: token.length };
+          }
+        }
+        const rawUrl = process.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL || "";
+        const supabaseUrlHost = rawUrl.replace(/^https?:\/\//, "").split(".")[0];
+        const keyClaims = decodeJwtClaims(process.env.SUPABASE_SERVICE_ROLE_KEY);
+
         const { count: profilesCountAll } = await supabaseAdmin
           .from("profiles")
           .select("id", { count: "exact", head: true });
@@ -48,6 +62,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
             JSON.stringify({
               sent: 0,
               supabaseUrlHost,
+              keyClaims,
               profilesCountAll,
               profilesError: profilesError?.message ?? null,
             }),
