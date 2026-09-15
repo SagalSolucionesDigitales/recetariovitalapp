@@ -175,11 +175,21 @@ function AuthSync() {
   return null;
 }
 
+function ServiceWorkerRegister() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthSync />
+      <ServiceWorkerRegister />
       <Outlet />
       <Toaster />
     </QueryClientProvider>

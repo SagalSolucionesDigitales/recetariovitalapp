@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
 import { Route as ApiPublicHotmartWebhookRouteImport } from './routes/api/public/hotmart-webhook'
+import { Route as ApiPublicCronRecordatoriosRouteImport } from './routes/api/public/cron-recordatorios'
 import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
 import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
 import { Route as AuthenticatedAppPlatoRouteImport } from './routes/_authenticated/_app.plato'
@@ -78,6 +79,12 @@ const ApiPublicHotmartWebhookRoute = ApiPublicHotmartWebhookRouteImport.update({
   path: '/api/public/hotmart-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronRecordatoriosRoute =
+  ApiPublicCronRecordatoriosRouteImport.update({
+    id: '/api/public/cron-recordatorios',
+    path: '/api/public/cron-recordatorios',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppSuscripcionRoute =
   AuthenticatedAppSuscripcionRouteImport.update({
     id: '/suscripcion',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/plato': typeof AuthenticatedAppPlatoRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/cron-recordatorios': typeof ApiPublicCronRecordatoriosRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -171,6 +179,7 @@ export interface FileRoutesByTo {
   '/plato': typeof AuthenticatedAppPlatoRoute
   '/progreso': typeof AuthenticatedAppProgresoRoute
   '/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/cron-recordatorios': typeof ApiPublicCronRecordatoriosRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRoutesById {
@@ -194,6 +203,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/plato': typeof AuthenticatedAppPlatoRoute
   '/_authenticated/_app/progreso': typeof AuthenticatedAppProgresoRoute
   '/_authenticated/_app/suscripcion': typeof AuthenticatedAppSuscripcionRoute
+  '/api/public/cron-recordatorios': typeof ApiPublicCronRecordatoriosRoute
   '/api/public/hotmart-webhook': typeof ApiPublicHotmartWebhookRoute
 }
 export interface FileRouteTypes {
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/plato'
     | '/progreso'
     | '/suscripcion'
+    | '/api/public/cron-recordatorios'
     | '/api/public/hotmart-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/plato'
     | '/progreso'
     | '/suscripcion'
+    | '/api/public/cron-recordatorios'
     | '/api/public/hotmart-webhook'
   id:
     | '__root__'
@@ -258,6 +270,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/plato'
     | '/_authenticated/_app/progreso'
     | '/_authenticated/_app/suscripcion'
+    | '/api/public/cron-recordatorios'
     | '/api/public/hotmart-webhook'
   fileRoutesById: FileRoutesById
 }
@@ -269,6 +282,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   SinAccesoRoute: typeof SinAccesoRoute
   TerminosRoute: typeof TerminosRoute
+  ApiPublicCronRecordatoriosRoute: typeof ApiPublicCronRecordatoriosRoute
   ApiPublicHotmartWebhookRoute: typeof ApiPublicHotmartWebhookRoute
 }
 
@@ -342,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hotmart-webhook'
       fullPath: '/api/public/hotmart-webhook'
       preLoaderRoute: typeof ApiPublicHotmartWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron-recordatorios': {
+      id: '/api/public/cron-recordatorios'
+      path: '/api/public/cron-recordatorios'
+      fullPath: '/api/public/cron-recordatorios'
+      preLoaderRoute: typeof ApiPublicCronRecordatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app/suscripcion': {
@@ -468,6 +489,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   SinAccesoRoute: SinAccesoRoute,
   TerminosRoute: TerminosRoute,
+  ApiPublicCronRecordatoriosRoute: ApiPublicCronRecordatoriosRoute,
   ApiPublicHotmartWebhookRoute: ApiPublicHotmartWebhookRoute,
 }
 export const routeTree = rootRouteImport

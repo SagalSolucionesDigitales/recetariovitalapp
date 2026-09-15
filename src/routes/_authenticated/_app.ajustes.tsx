@@ -1,8 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Bell, Globe, Shield, FileText, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  savePushSubscription,
+  deletePushSubscription,
+  VAPID_PUBLIC_KEY,
+} from "@/lib/push.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/_app/ajustes")({
@@ -12,22 +18,30 @@ export const Route = createFileRoute("/_authenticated/_app/ajustes")({
 
 const PREFS_KEY = "rv:prefs";
 type Prefs = {
-  recordatorioCheckin: boolean;
-  recordatorioComidas: boolean;
   idioma: "es-MX" | "es";
   tema: "claro" | "auto";
 };
 const defaults: Prefs = {
-  recordatorioCheckin: true,
-  recordatorioComidas: false,
   idioma: "es-MX",
   tema: "claro",
 };
+
+function urlBase64ToUint8Array(base64String: string) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+}
 
 function AjustesPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [prefs, setPrefs] = useState<Prefs>(defaults);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  const saveSub = useServerFn(savePushSubscription);
+  const deleteSub = useServerFn(deletePushSubscription);
 
   useEffect(() => {
     try {
@@ -38,11 +52,71 @@ function AjustesPage() {
     }
   }, []);
 
+  useEffect(() => {
+    (async () => {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        setPushEnabled(!!sub);
+      } catch {
+        /* noop */
+      }
+    })();
+  }, []);
+
   function update<K extends keyof Prefs>(k: K, v: Prefs[K]) {
     const next = { ...prefs, [k]: v };
     setPrefs(next);
     localStorage.setItem(PREFS_KEY, JSON.stringify(next));
     toast.success("Preferencia guardada");
+  }
+
+  async function togglePush(next: boolean) {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      toast.error("Tu navegador no soporta notificaciones.");
+      return;
+    }
+    if (!VAPID_PUBLIC_KEY) {
+      toast.error("Las notificaciones aún no están configuradas. Intenta más tarde.");
+      return;
+    }
+    setPushBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (next) {
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          toast.error("Debes permitir las notificaciones en tu navegador.");
+          return;
+        }
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+        const json = sub.toJSON();
+        await saveSub({
+          data: {
+            endpoint: json.endpoint!,
+            keys: { p256dh: json.keys!.p256dh!, auth: json.keys!.auth! },
+          },
+        });
+        setPushEnabled(true);
+        toast.success("Recordatorios activados");
+      } else {
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await deleteSub({ data: { endpoint: sub.endpoint } });
+          await sub.unsubscribe();
+        }
+        setPushEnabled(false);
+        toast.success("Recordatorios desactivados");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo actualizar la preferencia");
+    } finally {
+      setPushBusy(false);
+    }
   }
 
   async function logout() {
@@ -70,16 +144,11 @@ function AjustesPage() {
       <main className="mx-auto max-w-2xl space-y-5 px-5 py-5 pb-24 lg:pb-8">
         <Group title="Notificaciones" icon={Bell}>
           <Toggle
-            label="Recordatorio diario de check-in"
-            sub="Te avisamos a las 8 pm"
-            value={prefs.recordatorioCheckin}
-            onChange={(v) => update("recordatorioCheckin", v)}
-          />
-          <Toggle
-            label="Recordatorios de comidas"
-            sub="Notificación a la hora de cada comida"
-            value={prefs.recordatorioComidas}
-            onChange={(v) => update("recordatorioComidas", v)}
+            label="Recordatorio diario"
+            sub="Un aviso al día si te falta el check-in o generar tu plan"
+            value={pushEnabled}
+            onChange={togglePush}
+            disabled={pushBusy}
           />
         </Group>
 
@@ -165,16 +234,19 @@ function Toggle({
   sub,
   value,
   onChange,
+  disabled,
 }: {
   label: string;
   sub?: string;
   value: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
 }) {
   return (
     <button
       onClick={() => onChange(!value)}
-      className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-muted"
+      disabled={disabled}
+      className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-muted disabled:opacity-60"
     >
       <div className="flex-1">
         <p className="text-sm font-medium">{label}</p>
