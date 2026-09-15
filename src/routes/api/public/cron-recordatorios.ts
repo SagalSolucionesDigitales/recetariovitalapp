@@ -6,10 +6,6 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
       // Vercel Cron sends GET with an `Authorization: Bearer $CRON_SECRET`
       // header (when CRON_SECRET is set in the project's env vars).
       GET: async ({ request }) => {
-        return new Response(JSON.stringify({ canaryV3: true }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
         const cronSecret = process.env.CRON_SECRET;
         const auth = request.headers.get("authorization");
         if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
@@ -35,16 +31,31 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
         monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
         const semanaInicio = monday.toISOString().slice(0, 10);
 
-        const { data: profiles } = await supabaseAdmin
+        const supabaseUrlHost = (process.env.SUPABASE_URL || "")
+          .replace(/^https?:\/\//, "")
+          .split(".")[0];
+        const { count: profilesCountAll } = await supabaseAdmin
+          .from("profiles")
+          .select("id", { count: "exact", head: true });
+
+        const { data: profiles, error: profilesError } = await supabaseAdmin
           .from("profiles")
           .select("id")
           .eq("onboarding_completo", true);
         const userIds = (profiles ?? []).map((p) => p.id);
         if (!userIds.length) {
-          return new Response(JSON.stringify({ sent: 0 }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return new Response(
+            JSON.stringify({
+              sent: 0,
+              supabaseUrlHost,
+              profilesCountAll,
+              profilesError: profilesError?.message ?? null,
+            }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         }
 
         const [{ data: checkins }, { data: plans }, { data: subs }] = await Promise.all([
