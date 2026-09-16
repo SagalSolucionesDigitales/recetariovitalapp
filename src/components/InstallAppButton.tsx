@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import { Download, Share2 } from "lucide-react";
+import { Download, Share2, MoreVertical } from "lucide-react";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
+
+declare global {
+  interface Window {
+    __rvInstallPrompt?: BeforeInstallPromptEvent | null;
+  }
+}
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
@@ -23,30 +29,36 @@ export function InstallAppButton() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(true);
   const [ios, setIos] = useState(false);
-  const [showIosHelp, setShowIosHelp] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     setInstalled(isStandalone());
     setIos(isIOS());
 
-    function onPrompt(e: Event) {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
+    // The event may have already fired (and been captured by the inline
+    // script in <head>) on an earlier route, before this component mounted.
+    if (window.__rvInstallPrompt) setDeferred(window.__rvInstallPrompt);
+
+    function onPromptReady() {
+      if (window.__rvInstallPrompt) setDeferred(window.__rvInstallPrompt);
     }
     function onInstalled() {
       setInstalled(true);
       setDeferred(null);
     }
-    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("rv-install-prompt-ready", onPromptReady);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("rv-install-prompt-ready", onPromptReady);
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
 
+  // Always visible until installed — Chrome/Edge only expose the automatic
+  // prompt after their own engagement heuristics decide to fire it, so an
+  // Android/desktop visitor without `deferred` yet still gets a button with
+  // manual instructions instead of nothing.
   if (installed) return null;
-  if (!deferred && !ios) return null;
 
   async function handleClick() {
     if (deferred) {
@@ -54,9 +66,10 @@ export function InstallAppButton() {
       const choice = await deferred.userChoice;
       if (choice.outcome === "accepted") setInstalled(true);
       setDeferred(null);
+      window.__rvInstallPrompt = null;
       return;
     }
-    if (ios) setShowIosHelp(true);
+    setShowHelp(true);
   }
 
   return (
@@ -69,22 +82,30 @@ export function InstallAppButton() {
         Instala la app en tu teléfono
       </button>
 
-      {showIosHelp && (
+      {showHelp && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4"
-          onClick={() => setShowIosHelp(false)}
+          onClick={() => setShowHelp(false)}
         >
           <div
             className="w-full max-w-sm rounded-2xl bg-card p-5 text-center"
             onClick={(e) => e.stopPropagation()}
           >
             <p className="font-serif text-lg">Instala Recetario Vital</p>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Toca el ícono <Share2 className="inline h-4 w-4" strokeWidth={2} /> "Compartir" en
-              Safari y luego elige <strong>"Agregar a pantalla de inicio"</strong>.
-            </p>
+            {ios ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Toca el ícono <Share2 className="inline h-4 w-4" strokeWidth={2} /> "Compartir" en
+                Safari y luego elige <strong>"Agregar a pantalla de inicio"</strong>.
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Toca el menú <MoreVertical className="inline h-4 w-4" strokeWidth={2} /> de tu
+                navegador y elige <strong>"Instalar aplicación"</strong> o{" "}
+                <strong>"Agregar a pantalla de inicio"</strong>.
+              </p>
+            )}
             <button
-              onClick={() => setShowIosHelp(false)}
+              onClick={() => setShowHelp(false)}
               className="mt-4 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
             >
               Entendido

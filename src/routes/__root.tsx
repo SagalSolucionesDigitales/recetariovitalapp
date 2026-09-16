@@ -137,11 +137,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const CAPTURE_INSTALL_PROMPT_SCRIPT = `
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    window.__rvInstallPrompt = e;
+    window.dispatchEvent(new Event("rv-install-prompt-ready"));
+  });
+  window.addEventListener("appinstalled", function () {
+    window.__rvInstallPrompt = null;
+  });
+`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <head>
         <HeadContent />
+        {/* Runs before hydration so we never miss beforeinstallprompt if it
+            fires on an earlier route (landing, login, onboarding) than the
+            one that renders InstallAppButton. */}
+        <script dangerouslySetInnerHTML={{ __html: CAPTURE_INSTALL_PROMPT_SCRIPT }} />
       </head>
       <body>
         {children}
