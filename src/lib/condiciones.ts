@@ -8,9 +8,9 @@ export const CONDICIONES: Array<{ id: CondicionSalud; title: string; sub: string
   [
     {
       id: "prediabetes",
-      title: "Prediabetes o diabetes tipo 2",
+      title: "Prediabetes o diabetes (tipo 1 o tipo 2)",
       sub: "Control de glucosa e índice glucémico",
-      label: "Prediabetes / Diabetes tipo 2",
+      label: "Prediabetes / Diabetes (tipo 1 o tipo 2)",
     },
     {
       id: "cardiovascular",
@@ -159,6 +159,8 @@ export const CINTURA_OPCIONES: Opcion[] = [
 
 export const RESTRICCION_OTRA_ID = "otra";
 
+export const MAX_RESTRICCIONES_OTRAS = 4;
+
 export const RESTRICCIONES_OPCIONES: Array<{ id: string; l: string }> = [
   { id: "gluten", l: "🌾 Gluten" },
   { id: "lacteos", l: "🥛 Lácteos" },
@@ -166,16 +168,18 @@ export const RESTRICCIONES_OPCIONES: Array<{ id: string; l: string }> = [
   { id: "cerdo", l: "🥩 Cerdo" },
   { id: "picante", l: "🌶️ Picante" },
   { id: "ninguno", l: "✅ Ninguno por ahora" },
-  { id: RESTRICCION_OTRA_ID, l: "➕ Otra, ¿cuál?" },
+  { id: RESTRICCION_OTRA_ID, l: "➕ Otras, ¿cuáles?" },
 ];
 
 const RESTRICCIONES_IDS_FIJOS = new Set(
   RESTRICCIONES_OPCIONES.map((o) => o.id).filter((id) => id !== RESTRICCION_OTRA_ID),
 );
 
-/** The free-text value entered via "Otra, ¿cuál?" (stored inline in the restricciones array), if any. */
-export function extraerRestriccionOtra(restricciones: string[]): string {
-  return restricciones.find((r) => !RESTRICCIONES_IDS_FIJOS.has(r)) ?? "";
+/** The free-text values entered via "Otras, ¿cuáles?" (stored inline in the restricciones array), if any. */
+export function extraerRestriccionesOtras(restricciones: string[]): string[] {
+  return restricciones
+    .filter((r) => !RESTRICCIONES_IDS_FIJOS.has(r))
+    .slice(0, MAX_RESTRICCIONES_OTRAS);
 }
 
 export const TIEMPO_OPCIONES: Opcion[] = [

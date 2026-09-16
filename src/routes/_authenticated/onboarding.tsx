@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { getMyProfile, saveOnboarding } from "@/lib/profile.functions";
 import { generateWeeklyPlan } from "@/lib/ai.functions";
+import { RestriccionesOtrasInput } from "@/components/RestriccionesOtrasInput";
 import {
   type CondicionSalud,
   type Pais,
@@ -53,7 +54,7 @@ function OnboardingPage() {
   const [estaturaCm, setEstaturaCm] = useState<number | null>(null);
   const [rest, setRest] = useState<string[]>([]);
   const [otraSel, setOtraSel] = useState(false);
-  const [otraTexto, setOtraTexto] = useState("");
+  const [otrasTextos, setOtrasTextos] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<Tiempo | null>(null);
   const [personas, setPersonas] = useState<Personas | null>(null);
   const [presup, setPresup] = useState<Presup | null>(null);
@@ -68,7 +69,7 @@ function OnboardingPage() {
     });
   }, [fetchProfile, navigate]);
 
-  const restFinal = otraSel && otraTexto.trim() ? [...rest, otraTexto.trim()] : rest;
+  const restFinal = otraSel && otrasTextos.length ? [...rest, ...otrasTextos] : rest;
 
   const total = 7;
   const indicadorValido =
@@ -377,11 +378,11 @@ function OnboardingPage() {
                       if (id === "ninguno") {
                         setRest(sel ? [] : ["ninguno"]);
                         setOtraSel(false);
-                        setOtraTexto("");
+                        setOtrasTextos([]);
                       } else if (id === RESTRICCION_OTRA_ID) {
                         setRest((prev) => prev.filter((x) => x !== "ninguno"));
                         setOtraSel(!sel);
-                        if (sel) setOtraTexto("");
+                        if (sel) setOtrasTextos([]);
                       } else
                         setRest((prev) => {
                           const cleaned = prev.filter((x) => x !== "ninguno");
@@ -400,17 +401,7 @@ function OnboardingPage() {
                 );
               })}
             </div>
-            {otraSel && (
-              <input
-                type="text"
-                autoFocus
-                value={otraTexto}
-                onChange={(e) => setOtraTexto(e.target.value)}
-                placeholder="¿Cuál? Ej. Nueces, aguacate…"
-                maxLength={60}
-                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-primary/40"
-              />
-            )}
+            {otraSel && <RestriccionesOtrasInput value={otrasTextos} onChange={setOtrasTextos} />}
           </Step>
         )}
 

@@ -6,6 +6,7 @@ import { ArrowLeft, User, CreditCard, Settings, LogOut, Loader2, Check } from "l
 import { getMyProfile, updateProfileBasics } from "@/lib/profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { RestriccionesOtrasInput } from "@/components/RestriccionesOtrasInput";
 import {
   CONDICIONES,
   PAISES,
@@ -14,7 +15,7 @@ import {
   CINTURA_OPCIONES,
   RESTRICCIONES_OPCIONES,
   RESTRICCION_OTRA_ID,
-  extraerRestriccionOtra,
+  extraerRestriccionesOtras,
   presupuestoOpciones,
 } from "@/lib/condiciones";
 
@@ -40,7 +41,7 @@ function CuentaPage() {
   const [estaturaCm, setEstaturaCm] = useState<string>("");
   const [rest, setRest] = useState<string[]>([]);
   const [otraSel, setOtraSel] = useState(false);
-  const [otraTexto, setOtraTexto] = useState("");
+  const [otrasTextos, setOtrasTextos] = useState<string[]>([]);
   const [tiempo, setTiempo] = useState<string>("");
   const [personas, setPersonas] = useState<string>("");
   const [presup, setPresup] = useState<string>("");
@@ -56,10 +57,10 @@ function CuentaPage() {
       setPesoKg(profile.peso_kg != null ? String(profile.peso_kg) : "");
       setEstaturaCm(profile.estatura_cm != null ? String(profile.estatura_cm) : "");
       const storedRest = profile.restricciones ?? [];
-      const custom = extraerRestriccionOtra(storedRest);
-      setRest(custom ? storedRest.filter((r) => r !== custom) : storedRest);
-      setOtraSel(!!custom);
-      setOtraTexto(custom);
+      const customs = extraerRestriccionesOtras(storedRest);
+      setRest(customs.length ? storedRest.filter((r) => !customs.includes(r)) : storedRest);
+      setOtraSel(customs.length > 0);
+      setOtrasTextos(customs);
       setTiempo(profile.tiempo_cocina ?? "");
       setPersonas(profile.personas ?? "");
       setPresup(profile.presupuesto ?? "");
@@ -82,7 +83,7 @@ function CuentaPage() {
           estatura_cm: (condicion === "control_peso" && estaturaCm
             ? Number(estaturaCm)
             : null) as never,
-          restricciones: otraSel && otraTexto.trim() ? [...rest, otraTexto.trim()] : rest,
+          restricciones: otraSel && otrasTextos.length ? [...rest, ...otrasTextos] : rest,
           tiempo_cocina: (tiempo || undefined) as never,
           personas: (personas || undefined) as never,
           presupuesto: (presup || undefined) as never,
@@ -211,9 +212,9 @@ function CuentaPage() {
               value={rest}
               onChange={setRest}
               otraSel={otraSel}
-              otraTexto={otraTexto}
+              otrasTextos={otrasTextos}
               onOtraSelChange={setOtraSel}
-              onOtraTextoChange={setOtraTexto}
+              onOtrasTextosChange={setOtrasTextos}
             />
             <Select
               label="Tiempo de cocina"
@@ -318,17 +319,17 @@ function MultiCheck({
   value,
   onChange,
   otraSel,
-  otraTexto,
+  otrasTextos,
   onOtraSelChange,
-  onOtraTextoChange,
+  onOtrasTextosChange,
 }: {
   label: string;
   value: string[];
   onChange: (v: string[]) => void;
   otraSel: boolean;
-  otraTexto: string;
+  otrasTextos: string[];
   onOtraSelChange: (v: boolean) => void;
-  onOtraTextoChange: (v: string) => void;
+  onOtrasTextosChange: (v: string[]) => void;
 }) {
   return (
     <div className="space-y-2">
@@ -344,11 +345,11 @@ function MultiCheck({
                 if (id === "ninguno") {
                   onChange(selected ? [] : ["ninguno"]);
                   onOtraSelChange(false);
-                  onOtraTextoChange("");
+                  onOtrasTextosChange([]);
                 } else if (id === RESTRICCION_OTRA_ID) {
                   onChange(value.filter((x) => x !== "ninguno"));
                   onOtraSelChange(!selected);
-                  if (selected) onOtraTextoChange("");
+                  if (selected) onOtrasTextosChange([]);
                 } else
                   onChange(
                     selected
@@ -365,14 +366,7 @@ function MultiCheck({
         })}
       </div>
       {otraSel && (
-        <input
-          type="text"
-          value={otraTexto}
-          onChange={(e) => onOtraTextoChange(e.target.value)}
-          placeholder="¿Cuál? Ej. Nueces, aguacate…"
-          maxLength={60}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/40"
-        />
+        <RestriccionesOtrasInput value={otrasTextos} onChange={onOtrasTextosChange} compact />
       )}
     </div>
   );
