@@ -33,6 +33,23 @@ function urlBase64ToUint8Array(base64String: string) {
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
 
+// Chrome throws AbortError "Registration failed - push service error" when its
+// registration with FCM gets stuck on a stale service worker registration.
+// Dropping the registration and subscribing again from a fresh one clears it.
+async function subscribeWithRecovery(reg: ServiceWorkerRegistration, key: Uint8Array<ArrayBuffer>) {
+  const options = { userVisibleOnly: true, applicationServerKey: key };
+  try {
+    return await reg.pushManager.subscribe(options);
+  } catch (e) {
+    if (!(e instanceof DOMException) || e.name !== "AbortError") throw e;
+    await (await reg.pushManager.getSubscription())?.unsubscribe().catch(() => {});
+    await reg.unregister();
+    await navigator.serviceWorker.register("/sw.js");
+    const fresh = await navigator.serviceWorker.ready;
+    return fresh.pushManager.subscribe(options);
+  }
+}
+
 function AjustesPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -90,10 +107,7 @@ function AjustesPage() {
           toast.error("Debes permitir las notificaciones en tu navegador.");
           return;
         }
-        const sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-        });
+        const sub = await subscribeWithRecovery(reg, urlBase64ToUint8Array(VAPID_PUBLIC_KEY));
         const json = sub.toJSON();
         await saveSub({
           data: {
@@ -113,7 +127,13 @@ function AjustesPage() {
         toast.success("Recordatorios desactivados");
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "No se pudo actualizar la preferencia");
+      if (e instanceof DOMException && e.name === "AbortError") {
+        toast.error(
+          "Tu navegador no pudo conectarse al servicio de notificaciones. Revisa tu conexión (VPN o antivirus), reinicia el navegador e intenta de nuevo. En Brave, activa «Usar servicios de Google para mensajes push» en brave://settings/privacy.",
+        );
+      } else {
+        toast.error(e instanceof Error ? e.message : "No se pudo actualizar la preferencia");
+      }
     } finally {
       setPushBusy(false);
     }
