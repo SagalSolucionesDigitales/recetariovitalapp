@@ -45,31 +45,51 @@ export type AIContentPart =
 
 export type AIMessage = { role: string; content: string | AIContentPart[] };
 
+// Gemini answers 503 ("high demand") and 429 in short bursts; a quick retry
+// almost always gets through, so users don't see a transient overload.
+const RETRYABLE_STATUS = new Set([429, 503]);
+const MAX_ATTEMPTS = 3;
+
 export async function callAI(messages: AIMessage[], opts?: { json?: boolean }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY no está configurado.");
-  const res = await fetch(GATEWAY, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
-    }),
+  const body = JSON.stringify({
+    model: MODEL,
+    messages,
+    ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
   });
-  if (!res.ok) {
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(GATEWAY, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.choices?.[0]?.message?.content as string;
+    }
     const txt = await res.text();
-    console.error("[ai.callAI] Gemini error", { status: res.status, body: txt.slice(0, 1000) });
+    console.error("[ai.callAI] Gemini error", {
+      status: res.status,
+      attempt,
+      body: txt.slice(0, 1000),
+    });
+    if (RETRYABLE_STATUS.has(res.status) && attempt < MAX_ATTEMPTS) {
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      continue;
+    }
     if (res.status === 429) throw new Error("Demasiadas solicitudes. Inténtalo en un momento.");
+    if (res.status === 503)
+      throw new Error(
+        "Camila tiene mucha demanda ahora mismo. Inténtalo de nuevo en unos segundos.",
+      );
     if (res.status === 403)
       throw new Error("Sin créditos o permisos en la API de Gemini. Contacta a soporte.");
     throw new Error(`AI error ${res.status}: ${txt.slice(0, 200)}`);
   }
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content as string;
 }
 
 function describePerfil(p: {

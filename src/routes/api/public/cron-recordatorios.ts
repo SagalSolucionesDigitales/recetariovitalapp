@@ -36,7 +36,28 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
           .select("id")
           .eq("onboarding_completo", true);
         const userIds = (profiles ?? []).map((p) => p.id);
+
+        const run = {
+          users: userIds.length,
+          pending: 0,
+          sent: 0,
+          stale: 0,
+          failed: [] as { status: number | null; message: string }[],
+        };
+        // Best-effort: a logging failure must never break the reminders.
+        const recordRun = async () => {
+          try {
+            const { error } = await supabaseAdmin
+              .from("cron_runs")
+              .insert({ job: "recordatorios", ...run });
+            if (error) console.error("[cron-recordatorios] could not record run", error);
+          } catch (err) {
+            console.error("[cron-recordatorios] could not record run", err);
+          }
+        };
+
         if (!userIds.length) {
+          await recordRun();
           return new Response(JSON.stringify({ sent: 0 }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
@@ -67,7 +88,6 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
           subsByUser.set(s.user_id, arr);
         }
 
-        let sent = 0;
         const staleEndpoints: string[] = [];
 
         for (const userId of userIds) {
@@ -83,6 +103,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
             continue;
           }
 
+          run.pending++;
           const payload = JSON.stringify({ title: "Recetario Vital", body, url: "/dashboard" });
 
           for (const sub of userSubs) {
@@ -91,13 +112,17 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
                 { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
                 payload,
               );
-              sent++;
+              run.sent++;
             } catch (err) {
               const statusCode = (err as { statusCode?: number })?.statusCode;
               if (statusCode === 404 || statusCode === 410) {
                 staleEndpoints.push(sub.endpoint);
               } else {
                 console.error("[cron-recordatorios] push error", err);
+                run.failed.push({
+                  status: statusCode ?? null,
+                  message: (err instanceof Error ? err.message : String(err)).slice(0, 200),
+                });
               }
             }
           }
@@ -106,8 +131,10 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
         if (staleEndpoints.length) {
           await supabaseAdmin.from("push_subscriptions").delete().in("endpoint", staleEndpoints);
         }
+        run.stale = staleEndpoints.length;
+        await recordRun();
 
-        return new Response(JSON.stringify({ sent }), {
+        return new Response(JSON.stringify({ sent: run.sent }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });

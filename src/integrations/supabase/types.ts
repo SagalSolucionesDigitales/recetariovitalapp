@@ -83,6 +83,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_runs: {
+        Row: {
+          failed: Json
+          id: string
+          job: string
+          pending: number
+          ran_at: string
+          sent: number
+          stale: number
+          users: number
+        }
+        Insert: {
+          failed?: Json
+          id?: string
+          job: string
+          pending?: number
+          ran_at?: string
+          sent?: number
+          stale?: number
+          users?: number
+        }
+        Update: {
+          failed?: Json
+          id?: string
+          job?: string
+          pending?: number
+          ran_at?: string
+          sent?: number
+          stale?: number
+          users?: number
+        }
+        Relationships: []
+      }
       hotmart_purchases: {
         Row: {
           actualizado_en: string
