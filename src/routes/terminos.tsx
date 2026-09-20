@@ -29,8 +29,8 @@ function TerminosPage() {
 
         <Section title="1. Qué es Recetario Vital">
           Recetario Vital es una aplicación web de nutrición asistida por inteligencia artificial.
-          Genera planes de alimentación semanales personalizados (dieta mediterránea adaptada a tu
-          país), permite conversar con "Camila" (un asistente de IA de nutrición), analizar fotos de
+          Genera planes de alimentación semanales personalizados (alimentación adaptada a tu
+          condición de salud y a tu país), permite conversar con "Camila" (un asistente de IA de nutrición), analizar fotos de
           tus platos para estimar porciones y valores nutricionales, y llevar un registro de tu
           bienestar y progreso.
         </Section>

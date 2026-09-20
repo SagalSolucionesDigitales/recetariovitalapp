@@ -33,7 +33,7 @@ export const CONDICIONES: Array<{ id: CondicionSalud; title: string; sub: string
   ];
 
 export function condicionLabel(c: string | null | undefined): string {
-  return CONDICIONES.find((x) => x.id === c)?.label ?? "Dieta Mediterránea";
+  return CONDICIONES.find((x) => x.id === c)?.label ?? "salud metabólica";
 }
 
 export type Pais =

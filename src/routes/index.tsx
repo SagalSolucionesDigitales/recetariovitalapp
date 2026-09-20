@@ -5,11 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Recetario Vital — Dieta Mediterránea para Hispanoamérica" },
+      { title: "Recetario Vital App — Dieta diabética personalizada" },
       {
         name: "description",
         content:
-          "Cuida tu glucosa, colesterol, peso o síndrome metabólico con la Dieta Mediterránea adaptada a los ingredientes de tu país. Plan semanal personalizado, coach 24/7 y registro de progreso. Pago único.",
+          "Dieta diabética personalizada: plan semanal según tu perfil y tu país, coach de nutrición 24/7 y seguimiento de tu progreso. Pago único, sin suscripciones.",
       },
     ],
   }),
@@ -67,23 +67,6 @@ function Splash() {
           ))}
         </ul>
 
-        <div className="mt-7 flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {["MA", "JL", "RS", "VP"].map((i, idx) => (
-              <span
-                key={i}
-                className="grid h-8 w-8 place-items-center rounded-full border-2 border-primary bg-white text-[11px] font-medium text-primary"
-                style={{ zIndex: 10 - idx }}
-              >
-                {i}
-              </span>
-            ))}
-          </div>
-          <p className="text-xs leading-snug text-white/70">
-            <strong className="font-medium text-white/95">+2,400 personas</strong> ya cuidan su
-            salud metabólica con Recetario Vital
-          </p>
-        </div>
       </section>
 
       {/* Bottom — crema */}

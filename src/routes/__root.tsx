@@ -77,11 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica" },
+      { title: "Recetario Vital App — Dieta diabética personalizada" },
       {
         name: "description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Dieta diabética personalizada: plan semanal según tu perfil y tu país, coach de nutrición 24/7 y seguimiento de tu progreso. Pago único, sin suscripciones.",
       },
       { name: "theme-color", content: "#1B5233" },
       { name: "mobile-web-app-capable", content: "yes" },
@@ -90,22 +90,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Recetario Vital" },
       {
         property: "og:title",
-        content: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica",
+        content: "Recetario Vital App — Dieta diabética personalizada",
       },
       {
         property: "og:description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Dieta diabética personalizada: plan semanal según tu perfil y tu país, coach de nutrición 24/7 y seguimiento de tu progreso. Pago único, sin suscripciones.",
       },
       { property: "og:type", content: "website" },
       {
         name: "twitter:title",
-        content: "Recetario Vital — Dieta Mediterránea para tu salud metabólica en Hispanoamérica",
+        content: "Recetario Vital App — Dieta diabética personalizada",
       },
       {
         name: "twitter:description",
         content:
-          "Plan semanal con Dieta Mediterránea adaptada a tu país en Hispanoamérica, para prediabetes, colesterol, síndrome metabólico o control de peso. Coach de nutrición 24/7 y registro de tu progreso. Pago único.",
+          "Dieta diabética personalizada: plan semanal según tu perfil y tu país, coach de nutrición 24/7 y seguimiento de tu progreso. Pago único, sin suscripciones.",
       },
       {
         property: "og:image",

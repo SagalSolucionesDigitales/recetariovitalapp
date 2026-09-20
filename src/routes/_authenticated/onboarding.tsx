@@ -137,11 +137,11 @@ function OnboardingPage() {
 
   function encouragement() {
     if (condicion === "cardiovascular")
-      return "Con estos hábitos mediterráneos podemos mejorar tu colesterol de forma sostenida. Empecemos.";
+      return "Con estos hábitos podemos mejorar tu colesterol de forma sostenida. Empecemos.";
     if (condicion === "sindrome_metabolico")
       return "La combinación correcta de porciones y fibra hace una diferencia real en pocas semanas.";
     if (condicion === "control_peso")
-      return "Con un plan mediterráneo sostenible, la pérdida de peso se vuelve constante y sin privaciones.";
+      return "Con un plan sostenible, la pérdida de peso se vuelve constante y sin privaciones.";
     return glu === "111-125"
       ? "Con glucosa en ese rango, la consistencia en el plan marca una diferencia real en pocas semanas. Empecemos."
       : glu === "100-110"
@@ -265,7 +265,7 @@ function OnboardingPage() {
           <Step
             eyebrow="TU CONDICIÓN"
             title="¿Cuál es tu condición de salud principal?"
-            subtitle="Con esto adaptamos tu plan de Dieta Mediterránea a lo que más te ayuda."
+            subtitle="Con esto adaptamos tu plan de alimentación a lo que más te ayuda."
           >
             {CONDICIONES.map((c) => (
               <RadioCard
