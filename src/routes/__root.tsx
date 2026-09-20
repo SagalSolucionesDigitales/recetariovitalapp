@@ -110,14 +110,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:image",
         content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png",
+          "https://www.recetariovital.co/og-logo.jpg",
       },
       {
         name: "twitter:image",
         content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/74d17e9c-84e7-4160-80b9-8ddc87bdc1f0/id-preview-55c56216--9ff0291d-9e08-474e-8e3d-c4a50f445652.lovable.app-1780689336227.png",
+          "https://www.recetariovital.co/og-logo.jpg",
       },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
       { rel: "manifest", href: "/manifest.webmanifest" },
