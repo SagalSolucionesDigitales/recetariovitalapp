@@ -111,6 +111,9 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
               await webpush.sendNotification(
                 { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
                 payload,
+                // Sin urgencia alta, Android en Doze puede retener el aviso
+                // (FCM lo "acepta" pero no lo entrega al instante).
+                { TTL: 60 * 60 * 12, urgency: "high" },
               );
               run.sent++;
             } catch (err) {
