@@ -46,50 +46,100 @@ export type AIContentPart =
 export type AIMessage = { role: string; content: string | AIContentPart[] };
 
 // Gemini answers 503 ("high demand") and 429 in short bursts; a quick retry
-// almost always gets through, so users don't see a transient overload.
+// almost always gets through, so users don't see a transient overload. When
+// the primary model stays overloaded (it has lasted minutes at a time), the
+// call falls back to a second model before giving up.
 const RETRYABLE_STATUS = new Set([429, 503]);
-const MAX_ATTEMPTS = 3;
+const PRIMARY_ATTEMPTS = 3;
+const FALLBACK_ATTEMPTS = 2;
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
 
-export async function callAI(messages: AIMessage[], opts?: { json?: boolean }) {
+// Every failed attempt is stored in public.ai_errors (Vercel Hobby logs only
+// keep 1 hour). Never lets a logging problem break the AI call itself.
+async function logAIError(row: {
+  label: string;
+  model: string;
+  attempt: number;
+  status: number | null;
+  message: string;
+  gave_up: boolean;
+}) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("ai_errors").insert(row);
+    if (error) console.error("[ai.callAI] could not record error", error);
+  } catch (err) {
+    console.error("[ai.callAI] could not record error", err);
+  }
+}
+
+export async function callAI(messages: AIMessage[], opts?: { json?: boolean; label?: string }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY no está configurado.");
-  const body = JSON.stringify({
-    model: MODEL,
-    messages,
-    ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
-  });
-  for (let attempt = 1; ; attempt++) {
-    const res = await fetch(GATEWAY, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body,
+  const label = opts?.label ?? "desconocido";
+  const plan = [
+    { model: MODEL, attempts: PRIMARY_ATTEMPTS },
+    ...(FALLBACK_MODEL && FALLBACK_MODEL !== MODEL
+      ? [{ model: FALLBACK_MODEL, attempts: FALLBACK_ATTEMPTS }]
+      : []),
+  ];
+  let lastStatus = 0;
+  let lastText = "";
+  for (const { model, attempts } of plan) {
+    const body = JSON.stringify({
+      model,
+      messages,
+      ...(opts?.json ? { response_format: { type: "json_object" } } : {}),
     });
-    if (res.ok) {
-      const data = await res.json();
-      return data.choices?.[0]?.message?.content as string;
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      const res = await fetch(GATEWAY, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.choices?.[0]?.message?.content as string;
+      }
+      const txt = await res.text();
+      // A broken fallback (e.g. model unavailable) must not mask the primary's
+      // error: the user should still see the friendly "mucha demanda" message.
+      if (model === MODEL || RETRYABLE_STATUS.has(res.status)) {
+        lastStatus = res.status;
+        lastText = txt;
+      }
+      console.error("[ai.callAI] Gemini error", {
+        label,
+        model,
+        status: res.status,
+        attempt,
+        body: txt.slice(0, 1000),
+      });
+      const retryable = RETRYABLE_STATUS.has(res.status);
+      const lastOfAll = model === plan[plan.length - 1].model && attempt === attempts;
+      await logAIError({
+        label,
+        model,
+        attempt,
+        status: res.status,
+        message: txt.slice(0, 500),
+        gave_up: !retryable || lastOfAll,
+      });
+      // Non-transient errors (403, 400...) won't improve with another model.
+      if (!retryable) break;
+      if (attempt < attempts) await new Promise((r) => setTimeout(r, 1000 * attempt));
     }
-    const txt = await res.text();
-    console.error("[ai.callAI] Gemini error", {
-      status: res.status,
-      attempt,
-      body: txt.slice(0, 1000),
-    });
-    if (RETRYABLE_STATUS.has(res.status) && attempt < MAX_ATTEMPTS) {
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
-      continue;
-    }
-    if (res.status === 429) throw new Error("Demasiadas solicitudes. Inténtalo en un momento.");
-    if (res.status === 503)
-      throw new Error(
-        "Camila tiene mucha demanda ahora mismo. Inténtalo de nuevo en unos segundos.",
-      );
-    if (res.status === 403)
-      throw new Error("Sin créditos o permisos en la API de Gemini. Contacta a soporte.");
-    throw new Error(`AI error ${res.status}: ${txt.slice(0, 200)}`);
+    if (!RETRYABLE_STATUS.has(lastStatus)) break;
   }
+  if (lastStatus === 429) throw new Error("Demasiadas solicitudes. Inténtalo en un momento.");
+  if (lastStatus === 503)
+    throw new Error("Camila tiene mucha demanda ahora mismo. Inténtalo de nuevo en unos segundos.");
+  if (lastStatus === 403)
+    throw new Error("Sin créditos o permisos en la API de Gemini. Contacta a soporte.");
+  throw new Error(`AI error ${lastStatus}: ${lastText.slice(0, 200)}`);
 }
 
 function describePerfil(p: {
@@ -152,7 +202,7 @@ export const generateWeeklyPlan = createServerFn({ method: "POST" })
         { role: "system", content: system },
         { role: "user", content: user },
       ],
-      { json: true },
+      { json: true, label: "plan-semanal" },
     );
 
     let plan: Record<string, unknown>;
@@ -230,7 +280,7 @@ export const askCamila = createServerFn({ method: "POST" })
       { role: "system", content: system },
       ...historyMsgs,
       { role: "user", content: data.mensaje },
-    ]);
+    ], { label: "chat-camila" });
 
     const { error } = await supabase.from("conversations").insert({
       user_id: userId,

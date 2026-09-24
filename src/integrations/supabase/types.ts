@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_errors: {
+        Row: {
+          attempt: number
+          created_at: string
+          gave_up: boolean
+          id: string
+          label: string
+          message: string | null
+          model: string
+          status: number | null
+        }
+        Insert: {
+          attempt: number
+          created_at?: string
+          gave_up?: boolean
+          id?: string
+          label: string
+          message?: string | null
+          model: string
+          status?: number | null
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          gave_up?: boolean
+          id?: string
+          label?: string
+          message?: string | null
+          model?: string
+          status?: number | null
+        }
+        Relationships: []
+      }
       app_admins: {
         Row: {
           creado_en: string

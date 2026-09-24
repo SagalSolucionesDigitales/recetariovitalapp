@@ -76,7 +76,7 @@ export const analyzeMealPhoto = createServerFn({ method: "POST" })
           ],
         },
       ],
-      { json: true },
+      { json: true, label: "analisis-plato" },
     );
 
     let resultado: Record<string, unknown>;
