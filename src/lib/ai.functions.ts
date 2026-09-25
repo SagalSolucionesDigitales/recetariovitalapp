@@ -45,13 +45,17 @@ export type AIContentPart =
 
 export type AIMessage = { role: string; content: string | AIContentPart[] };
 
-// Gemini answers 503 ("high demand") and 429 in short bursts; a quick retry
-// almost always gets through, so users don't see a transient overload. When
+// Gemini answers 503 ("high demand") and 429 in bursts; retrying after a pause
+// usually gets through, so users don't see a transient overload. When
 // the primary model stays overloaded (it has lasted minutes at a time), the
 // call falls back to a second model before giving up.
 const RETRYABLE_STATUS = new Set([429, 503]);
 const PRIMARY_ATTEMPTS = 3;
 const FALLBACK_ATTEMPTS = 2;
+// Waits between attempts of the same model. The overload spikes outlast 1-2 s
+// (the old backoff), so the gaps are long enough for a spike to pass while
+// the whole call stays well inside the Vercel function limit.
+const RETRY_DELAYS_MS = [5000, 15000];
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.8-flash";
 
 // Every failed attempt is stored in public.ai_errors (Vercel Hobby logs only
@@ -130,7 +134,10 @@ export async function callAI(messages: AIMessage[], opts?: { json?: boolean; lab
       });
       // Non-transient errors (403, 400...) won't improve with another model.
       if (!retryable) break;
-      if (attempt < attempts) await new Promise((r) => setTimeout(r, 1000 * attempt));
+      if (attempt < attempts) {
+        const delay = RETRY_DELAYS_MS[Math.min(attempt, RETRY_DELAYS_MS.length) - 1];
+        await new Promise((r) => setTimeout(r, delay));
+      }
     }
     if (!RETRYABLE_STATUS.has(lastStatus)) break;
   }
