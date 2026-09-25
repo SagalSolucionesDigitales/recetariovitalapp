@@ -52,7 +52,7 @@ export type AIMessage = { role: string; content: string | AIContentPart[] };
 const RETRYABLE_STATUS = new Set([429, 503]);
 const PRIMARY_ATTEMPTS = 3;
 const FALLBACK_ATTEMPTS = 2;
-const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.8-flash";
 
 // Every failed attempt is stored in public.ai_errors (Vercel Hobby logs only
 // keep 1 hour). Never lets a logging problem break the AI call itself.

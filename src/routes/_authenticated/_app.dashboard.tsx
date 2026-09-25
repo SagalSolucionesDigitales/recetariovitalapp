@@ -19,6 +19,7 @@ import {
 import { getMyProfile } from "@/lib/profile.functions";
 import { getRecentCheckins } from "@/lib/checkin.functions";
 import { getLatestPlan } from "@/lib/ai.functions";
+import { localDateKey } from "@/lib/dates";
 import { InstallAppButton } from "@/components/InstallAppButton";
 
 export const Route = createFileRoute("/_authenticated/_app/dashboard")({
@@ -53,7 +54,7 @@ function Dashboard() {
   const { data: planRow } = useQuery({ queryKey: ["plan-latest"], queryFn: () => fetchPlan() });
 
   const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
+  const todayStr = localDateKey(today);
   const todayCheckin = (checkins ?? []).find((c) => c.fecha === todayStr);
   const racha = computeStreak(checkins ?? []);
   const promedio = computeAvgWellness(checkins ?? []);
@@ -306,7 +307,7 @@ function computeStreak(checkins: Array<{ fecha: string; siguio_plan: string | nu
   let n = 0;
   const d = new Date();
   for (let i = 0; i < 60; i++) {
-    const key = d.toISOString().slice(0, 10);
+    const key = localDateKey(d);
     if (set.has(key)) n++;
     else if (i > 0) break;
     d.setDate(d.getDate() - 1);

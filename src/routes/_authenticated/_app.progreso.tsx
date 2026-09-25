@@ -6,6 +6,7 @@ import { Check, Loader2, Download } from "lucide-react";
 import { getRecentCheckins, saveCheckin } from "@/lib/checkin.functions";
 import { getMyProfile } from "@/lib/profile.functions";
 import { toast } from "sonner";
+import { localDateKey } from "@/lib/dates";
 import { condicionLabel, indicadorTexto } from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/progreso")({
@@ -25,7 +26,7 @@ function ProgresoPage() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
   const [exporting, setExporting] = useState(false);
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = localDateKey();
   const todayCheckin = (checkins ?? []).find(c => c.fecha === todayStr);
 
   const [score, setScore] = useState<number | null>(null);
@@ -33,7 +34,7 @@ function ProgresoPage() {
   const [notas, setNotas] = useState("");
 
   const mut = useMutation({
-    mutationFn: () => save({ data: { bienestar_score: score!, siguio_plan: siguio!, notas: notas || null } }),
+    mutationFn: () => save({ data: { bienestar_score: score!, siguio_plan: siguio!, notas: notas || null, fecha: localDateKey() } }),
     onSuccess: () => { toast.success("¡Check-in guardado!"); qc.invalidateQueries({ queryKey: ["checkins"] }); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
@@ -87,7 +88,7 @@ function ProgresoPage() {
 
       doc.setFontSize(8); doc.setTextColor(140);
       doc.text("Este reporte no reemplaza la consulta médica profesional.", left, 770);
-      doc.save(`historial-recetario-vital-${new Date().toISOString().slice(0,10)}.pdf`);
+      doc.save(`historial-recetario-vital-${localDateKey()}.pdf`);
       toast.success("Historial descargado");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "No pudimos generar el PDF");
@@ -102,7 +103,7 @@ function ProgresoPage() {
   const week = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    const key = d.toISOString().slice(0, 10);
+    const key = localDateKey(d);
     const c = (checkins ?? []).find(x => x.fecha === key);
     return { key, label: dayLabels[(d.getDay() + 6) % 7], score: c?.bienestar_score ?? 0, today: key === todayStr };
   });
