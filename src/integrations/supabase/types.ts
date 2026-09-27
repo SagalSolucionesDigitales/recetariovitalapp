@@ -268,24 +268,30 @@ export type Database = {
       }
       push_subscriptions: {
         Row: {
+          actualizado_en: string
           auth: string
           creado_en: string
+          dispositivo: string | null
           endpoint: string
           id: string
           p256dh: string
           user_id: string
         }
         Insert: {
+          actualizado_en?: string
           auth: string
           creado_en?: string
+          dispositivo?: string | null
           endpoint: string
           id?: string
           p256dh: string
           user_id: string
         }
         Update: {
+          actualizado_en?: string
           auth?: string
           creado_en?: string
+          dispositivo?: string | null
           endpoint?: string
           id?: string
           p256dh?: string

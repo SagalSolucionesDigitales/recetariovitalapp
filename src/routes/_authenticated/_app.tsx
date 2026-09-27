@@ -41,6 +41,7 @@ function PushSubscriptionSync() {
           data: {
             endpoint: json.endpoint,
             keys: { p256dh: json.keys.p256dh, auth: json.keys.auth },
+            dispositivo: navigator.userAgent,
           },
         });
       } catch {

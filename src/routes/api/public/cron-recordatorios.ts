@@ -12,16 +12,12 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        const vapidPublic = process.env.VAPID_PUBLIC_KEY?.trim();
-        const vapidPrivate = process.env.VAPID_PRIVATE_KEY?.trim();
-        const vapidSubject = (process.env.VAPID_SUBJECT || "mailto:hola@recetariovital.app").trim();
-        if (!vapidPublic || !vapidPrivate) {
+        const { getWebPush, PUSH_OPTIONS } = await import("@/lib/webpush.server");
+        const webpush = await getWebPush();
+        if (!webpush) {
           console.error("[cron-recordatorios] Missing VAPID_PUBLIC_KEY/VAPID_PRIVATE_KEY");
           return new Response("Missing VAPID config", { status: 500 });
         }
-
-        const webpush = (await import("web-push")).default;
-        webpush.setVapidDetails(vapidSubject, vapidPublic, vapidPrivate);
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -111,9 +107,7 @@ export const Route = createFileRoute("/api/public/cron-recordatorios")({
               await webpush.sendNotification(
                 { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
                 payload,
-                // Sin urgencia alta, Android en Doze puede retener el aviso
-                // (FCM lo "acepta" pero no lo entrega al instante).
-                { TTL: 60 * 60 * 12, urgency: "high" },
+                PUSH_OPTIONS,
               );
               run.sent++;
             } catch (err) {

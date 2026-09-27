@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   savePushSubscription,
   deletePushSubscription,
+  sendTestPush,
   VAPID_PUBLIC_KEY,
 } from "@/lib/push.functions";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ function AjustesPage() {
 
   const saveSub = useServerFn(savePushSubscription);
   const deleteSub = useServerFn(deletePushSubscription);
+  const testPush = useServerFn(sendTestPush);
 
   useEffect(() => {
     try {
@@ -113,6 +115,7 @@ function AjustesPage() {
           data: {
             endpoint: json.endpoint!,
             keys: { p256dh: json.keys!.p256dh!, auth: json.keys!.auth! },
+            dispositivo: navigator.userAgent,
           },
         });
         setPushEnabled(true);
@@ -134,6 +137,35 @@ function AjustesPage() {
       } else {
         toast.error(e instanceof Error ? e.message : "No se pudo actualizar la preferencia");
       }
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  async function sendTest() {
+    setPushBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        setPushEnabled(false);
+        toast.error("Este dispositivo no tiene los recordatorios activados.");
+        return;
+      }
+      const res = await testPush({ data: { endpoint: sub.endpoint } });
+      if (res.ok) {
+        toast.success("Enviada. Debería llegarte en unos segundos.");
+      } else if (res.reason === "vencida") {
+        await sub.unsubscribe().catch(() => {});
+        setPushEnabled(false);
+        toast.error("El registro de este dispositivo venció. Vuelve a activar el recordatorio.");
+      } else {
+        toast.error(
+          "Este dispositivo no estaba registrado. Desactiva y vuelve a activar el recordatorio.",
+        );
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "No se pudo enviar la prueba");
     } finally {
       setPushBusy(false);
     }
@@ -170,6 +202,15 @@ function AjustesPage() {
             onChange={togglePush}
             disabled={pushBusy}
           />
+          {pushEnabled && (
+            <button
+              onClick={sendTest}
+              disabled={pushBusy}
+              className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium text-primary hover:bg-muted disabled:opacity-60"
+            >
+              Enviar notificación de prueba
+            </button>
+          )}
         </Group>
 
         <Group title="Idioma y región" icon={Globe}>
