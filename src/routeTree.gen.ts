@@ -9,46 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TerminosRouteImport } from './routes/terminos'
-import { Route as SinAccesoRouteImport } from './routes/sin-acceso'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as PrivacidadRouteImport } from './routes/privacidad'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SinAccesoRouteImport } from './routes/sin-acceso'
+import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/_app'
-import { Route as ApiPublicHotmartWebhookRouteImport } from './routes/api/public/hotmart-webhook'
-import { Route as ApiPublicCronRecordatoriosRouteImport } from './routes/api/public/cron-recordatorios'
-import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
-import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
-import { Route as AuthenticatedAppPlatoRouteImport } from './routes/_authenticated/_app.plato'
-import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
-import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app.dashboard'
-import { Route as AuthenticatedAppCuentaRouteImport } from './routes/_authenticated/_app.cuenta'
-import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/_app.compras'
-import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/_app.coach'
-import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/_app.biblioteca'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedAppAjustesRouteImport } from './routes/_authenticated/_app.ajustes'
+import { Route as AuthenticatedAppBibliotecaRouteImport } from './routes/_authenticated/_app.biblioteca'
+import { Route as AuthenticatedAppCoachRouteImport } from './routes/_authenticated/_app.coach'
+import { Route as AuthenticatedAppComprasRouteImport } from './routes/_authenticated/_app.compras'
+import { Route as AuthenticatedAppCuentaRouteImport } from './routes/_authenticated/_app.cuenta'
+import { Route as AuthenticatedAppDashboardRouteImport } from './routes/_authenticated/_app.dashboard'
+import { Route as AuthenticatedAppPlanRouteImport } from './routes/_authenticated/_app.plan'
+import { Route as AuthenticatedAppPlatoRouteImport } from './routes/_authenticated/_app.plato'
+import { Route as AuthenticatedAppProgresoRouteImport } from './routes/_authenticated/_app.progreso'
+import { Route as AuthenticatedAppSuscripcionRouteImport } from './routes/_authenticated/_app.suscripcion'
+import { Route as ApiPublicCronRecordatoriosRouteImport } from './routes/api/public/cron-recordatorios'
+import { Route as ApiPublicHotmartWebhookRouteImport } from './routes/api/public/hotmart-webhook'
 
-const TerminosRoute = TerminosRouteImport.update({
-  id: '/terminos',
-  path: '/terminos',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SinAccesoRoute = SinAccesoRouteImport.update({
-  id: '/sin-acceso',
-  path: '/sin-acceso',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadRoute = PrivacidadRouteImport.update({
-  id: '/privacidad',
-  path: '/privacidad',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -56,76 +45,38 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
+} as any)
+const SinAccesoRoute = SinAccesoRouteImport.update({
+  id: '/sin-acceso',
+  path: '/sin-acceso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const ApiPublicHotmartWebhookRoute = ApiPublicHotmartWebhookRouteImport.update({
-  id: '/api/public/hotmart-webhook',
-  path: '/api/public/hotmart-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicCronRecordatoriosRoute =
-  ApiPublicCronRecordatoriosRouteImport.update({
-    id: '/api/public/cron-recordatorios',
-    path: '/api/public/cron-recordatorios',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthenticatedAppSuscripcionRoute =
-  AuthenticatedAppSuscripcionRouteImport.update({
-    id: '/suscripcion',
-    path: '/suscripcion',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProgresoRoute =
-  AuthenticatedAppProgresoRouteImport.update({
-    id: '/progreso',
-    path: '/progreso',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppPlatoRoute = AuthenticatedAppPlatoRouteImport.update({
-  id: '/plato',
-  path: '/plato',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
-  id: '/plan',
-  path: '/plan',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppDashboardRoute =
-  AuthenticatedAppDashboardRouteImport.update({
-    id: '/dashboard',
-    path: '/dashboard',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppCuentaRoute = AuthenticatedAppCuentaRouteImport.update({
-  id: '/cuenta',
-  path: '/cuenta',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppComprasRoute = AuthenticatedAppComprasRouteImport.update({
-  id: '/compras',
-  path: '/compras',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
-  id: '/coach',
-  path: '/coach',
+const AuthenticatedAppAjustesRoute = AuthenticatedAppAjustesRouteImport.update({
+  id: '/ajustes',
+  path: '/ajustes',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppBibliotecaRoute =
@@ -134,10 +85,59 @@ const AuthenticatedAppBibliotecaRoute =
     path: '/biblioteca',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppAjustesRoute = AuthenticatedAppAjustesRouteImport.update({
-  id: '/ajustes',
-  path: '/ajustes',
+const AuthenticatedAppCoachRoute = AuthenticatedAppCoachRouteImport.update({
+  id: '/coach',
+  path: '/coach',
   getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppComprasRoute = AuthenticatedAppComprasRouteImport.update({
+  id: '/compras',
+  path: '/compras',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppCuentaRoute = AuthenticatedAppCuentaRouteImport.update({
+  id: '/cuenta',
+  path: '/cuenta',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppDashboardRoute =
+  AuthenticatedAppDashboardRouteImport.update({
+    id: '/dashboard',
+    path: '/dashboard',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppPlanRoute = AuthenticatedAppPlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppPlatoRoute = AuthenticatedAppPlatoRouteImport.update({
+  id: '/plato',
+  path: '/plato',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppProgresoRoute =
+  AuthenticatedAppProgresoRouteImport.update({
+    id: '/progreso',
+    path: '/progreso',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSuscripcionRoute =
+  AuthenticatedAppSuscripcionRouteImport.update({
+    id: '/suscripcion',
+    path: '/suscripcion',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const ApiPublicCronRecordatoriosRoute =
+  ApiPublicCronRecordatoriosRouteImport.update({
+    id: '/api/public/cron-recordatorios',
+    path: '/api/public/cron-recordatorios',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHotmartWebhookRoute = ApiPublicHotmartWebhookRouteImport.update({
+  id: '/api/public/hotmart-webhook',
+  path: '/api/public/hotmart-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -288,39 +288,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terminos': {
-      id: '/terminos'
-      path: '/terminos'
-      fullPath: '/terminos'
-      preLoaderRoute: typeof TerminosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sin-acceso': {
-      id: '/sin-acceso'
-      path: '/sin-acceso'
-      fullPath: '/sin-acceso'
-      preLoaderRoute: typeof SinAccesoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidad': {
-      id: '/privacidad'
-      path: '/privacidad'
-      fullPath: '/privacidad'
-      preLoaderRoute: typeof PrivacidadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -330,19 +302,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/onboarding': {
-      id: '/_authenticated/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sin-acceso': {
+      id: '/sin-acceso'
+      path: '/sin-acceso'
+      fullPath: '/sin-acceso'
+      preLoaderRoute: typeof SinAccesoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/_app': {
       id: '/_authenticated/_app'
@@ -351,74 +344,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/hotmart-webhook': {
-      id: '/api/public/hotmart-webhook'
-      path: '/api/public/hotmart-webhook'
-      fullPath: '/api/public/hotmart-webhook'
-      preLoaderRoute: typeof ApiPublicHotmartWebhookRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/api/public/cron-recordatorios': {
-      id: '/api/public/cron-recordatorios'
-      path: '/api/public/cron-recordatorios'
-      fullPath: '/api/public/cron-recordatorios'
-      preLoaderRoute: typeof ApiPublicCronRecordatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/_app/suscripcion': {
-      id: '/_authenticated/_app/suscripcion'
-      path: '/suscripcion'
-      fullPath: '/suscripcion'
-      preLoaderRoute: typeof AuthenticatedAppSuscripcionRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/progreso': {
-      id: '/_authenticated/_app/progreso'
-      path: '/progreso'
-      fullPath: '/progreso'
-      preLoaderRoute: typeof AuthenticatedAppProgresoRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/plato': {
-      id: '/_authenticated/_app/plato'
-      path: '/plato'
-      fullPath: '/plato'
-      preLoaderRoute: typeof AuthenticatedAppPlatoRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/plan': {
-      id: '/_authenticated/_app/plan'
-      path: '/plan'
-      fullPath: '/plan'
-      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/dashboard': {
-      id: '/_authenticated/_app/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/cuenta': {
-      id: '/_authenticated/_app/cuenta'
-      path: '/cuenta'
-      fullPath: '/cuenta'
-      preLoaderRoute: typeof AuthenticatedAppCuentaRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/compras': {
-      id: '/_authenticated/_app/compras'
-      path: '/compras'
-      fullPath: '/compras'
-      preLoaderRoute: typeof AuthenticatedAppComprasRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/_app/coach': {
-      id: '/_authenticated/_app/coach'
-      path: '/coach'
-      fullPath: '/coach'
-      preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
+    '/_authenticated/_app/ajustes': {
+      id: '/_authenticated/_app/ajustes'
+      path: '/ajustes'
+      fullPath: '/ajustes'
+      preLoaderRoute: typeof AuthenticatedAppAjustesRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/_app/biblioteca': {
@@ -428,12 +365,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBibliotecaRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/_app/ajustes': {
-      id: '/_authenticated/_app/ajustes'
-      path: '/ajustes'
-      fullPath: '/ajustes'
-      preLoaderRoute: typeof AuthenticatedAppAjustesRouteImport
+    '/_authenticated/_app/coach': {
+      id: '/_authenticated/_app/coach'
+      path: '/coach'
+      fullPath: '/coach'
+      preLoaderRoute: typeof AuthenticatedAppCoachRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/compras': {
+      id: '/_authenticated/_app/compras'
+      path: '/compras'
+      fullPath: '/compras'
+      preLoaderRoute: typeof AuthenticatedAppComprasRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/cuenta': {
+      id: '/_authenticated/_app/cuenta'
+      path: '/cuenta'
+      fullPath: '/cuenta'
+      preLoaderRoute: typeof AuthenticatedAppCuentaRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/dashboard': {
+      id: '/_authenticated/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedAppDashboardRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/plan': {
+      id: '/_authenticated/_app/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof AuthenticatedAppPlanRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/plato': {
+      id: '/_authenticated/_app/plato'
+      path: '/plato'
+      fullPath: '/plato'
+      preLoaderRoute: typeof AuthenticatedAppPlatoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/progreso': {
+      id: '/_authenticated/_app/progreso'
+      path: '/progreso'
+      fullPath: '/progreso'
+      preLoaderRoute: typeof AuthenticatedAppProgresoRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/_app/suscripcion': {
+      id: '/_authenticated/_app/suscripcion'
+      path: '/suscripcion'
+      fullPath: '/suscripcion'
+      preLoaderRoute: typeof AuthenticatedAppSuscripcionRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/api/public/cron-recordatorios': {
+      id: '/api/public/cron-recordatorios'
+      path: '/api/public/cron-recordatorios'
+      fullPath: '/api/public/cron-recordatorios'
+      preLoaderRoute: typeof ApiPublicCronRecordatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hotmart-webhook': {
+      id: '/api/public/hotmart-webhook'
+      path: '/api/public/hotmart-webhook'
+      fullPath: '/api/public/hotmart-webhook'
+      preLoaderRoute: typeof ApiPublicHotmartWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
