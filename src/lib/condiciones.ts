@@ -224,7 +224,7 @@ export const PERSONAS_OPCIONES: Opcion[] = [
   },
 ];
 
-type MonedaInfo = { codigo: string; locale: string };
+export type MonedaInfo = { codigo: string; locale: string };
 
 // Ecuador, Panamá, El Salvador y Puerto Rico usan USD oficialmente.
 // Venezuela y Cuba se muestran en USD también: sus monedas oficiales son tan
@@ -286,6 +286,15 @@ function formatMoneda(monto: number, pais: Pais): string {
     currency: m.codigo,
     maximumFractionDigits: 0,
   }).format(monto);
+}
+
+export function monedaDePais(pais: string | null | undefined): MonedaInfo {
+  return MONEDA_POR_PAIS[PAISES.some((x) => x.id === pais) ? (pais as Pais) : "MX"];
+}
+
+// Coste de un plato con los decimales y el símbolo que usa cada país ("1,25 €", "$ 35,00").
+export function formatCosto(monto: number, moneda: MonedaInfo): string {
+  return new Intl.NumberFormat(moneda.locale, { style: "currency", currency: moneda.codigo }).format(monto);
 }
 
 export function presupuestoOpciones(pais: string | null | undefined): Opcion[] {

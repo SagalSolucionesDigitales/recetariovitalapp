@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { getLatestPlan, generateWeeklyPlan } from "@/lib/ai.functions";
 import { toast } from "sonner";
+import { formatCosto, type MonedaInfo } from "@/lib/condiciones";
 
 export const Route = createFileRoute("/_authenticated/_app/plan")({
   head: () => ({ meta: [{ title: "Mi Plan — Recetario Vital" }] }),
@@ -29,10 +30,18 @@ type Comida = {
   ingredientes?: string[];
   pasos?: string[];
   ig_nivel?: string;
+  costo?: number;
   costo_usd?: number;
 };
 type Dia = { dia: string; desayuno: Comida; almuerzo: Comida; cena: Comida; postre: Comida };
-type PlanJson = { semana?: string; dias?: Dia[] };
+// Planes anteriores al cambio de moneda solo traen costo_usd y no guardan "moneda".
+type PlanJson = { semana?: string; dias?: Dia[]; moneda?: MonedaInfo };
+
+function costoTexto(meal: Comida | undefined, moneda: MonedaInfo | undefined): string | null {
+  if (typeof meal?.costo === "number" && moneda) return formatCosto(meal.costo, moneda);
+  if (typeof meal?.costo_usd === "number") return `${meal.costo_usd.toFixed(2)} USD`;
+  return null;
+}
 
 function PlanPage() {
   const qc = useQueryClient();
@@ -172,9 +181,9 @@ function PlanPage() {
                       <span className="rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-semibold text-primary">
                         IG {meal?.ig_nivel ?? "Bajo"}
                       </span>
-                      {typeof meal?.costo_usd === "number" && (
+                      {costoTexto(meal, plan?.moneda) && (
                         <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-semibold text-accent">
-                          ${meal.costo_usd.toFixed(2)} USD
+                          {costoTexto(meal, plan?.moneda)}
                         </span>
                       )}
                     </div>
